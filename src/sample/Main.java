@@ -10,7 +10,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("authorization.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("../forms/authorization.fxml"));
         primaryStage.setTitle("Поиск коллокаций");
         primaryStage.setScene(new Scene(root, 212, 147));
         primaryStage.show();
