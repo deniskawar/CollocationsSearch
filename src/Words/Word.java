@@ -1,4 +1,4 @@
-package Words;
+package words;
 
 import java.util.List;
 
