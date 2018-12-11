@@ -1,6 +1,6 @@
 package words;
 
-public class Charachteristic {
+public class Characteristic {
     private String name;
     private int value;
 }
