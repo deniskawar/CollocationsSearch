@@ -7,23 +7,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    private static Stage primaryStage;
-
+    private Stage primaryStage;
+    private int authorizationWindowWidth = 285;
+    private int authorizationWindowHeight = 175;
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("../forms/authorization.fxml"));
         primaryStage.setTitle("Поиск коллокаций");
-        primaryStage.setScene(new Scene(root, 285, 175));
+        primaryStage.setScene(new Scene(root, authorizationWindowWidth, authorizationWindowHeight));
         this.primaryStage = primaryStage;
         primaryStage.show();
-    }
-
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-    }
-
-    public static Stage getPrimaryStage() {
-        return primaryStage;
     }
 
     public static void main(String[] args) {

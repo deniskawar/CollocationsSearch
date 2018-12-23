@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="175.0" prefWidth="285.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.AuthorizationController">
+<AnchorPane fx:id="authorizationWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="175.0" prefWidth="285.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.AuthorizationController">
    <children>
       <Button fx:id="signInButton" layoutX="104.0" layoutY="140.0" mnemonicParsing="false" onAction="#pressSignInButton" text="Войти" />
       <Text layoutX="44.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Экспертная система поиска коллокаций" textAlignment="CENTER" wrappingWidth="180.00000262260437">

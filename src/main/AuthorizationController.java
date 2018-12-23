@@ -10,12 +10,20 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Observable;
 
 public class AuthorizationController{
+    private int expertWindowWidth = 458;
+    private int expertWindowHeight = 224;
+    private int userWindowWidth = 507;
+    private int userWindowHeight = 245;
+    private static boolean neuralNetworkMode;
+    @FXML
+    private AnchorPane authorizationWindow;
     @FXML
     private Button signInButton;
     @FXML
@@ -40,19 +48,20 @@ public class AuthorizationController{
         methodToggleGroup.selectToggle(methodToggleGroup.getToggles().get(0));
 
     }
-    public void pressSignInButton() throws IOException{
-        if (/*modeBox.getSelectionModel().getSelectedItem().toString().equals("Режим пользователя")*/true) {
+    public void pressSignInButton() throws IOException {
+        neuralNetworkMode = methodToggleGroup.getSelectedToggle().equals(neuralNetworkRadioButton);
+        if (modeToggleGroup.getSelectedToggle().equals(userModeRadioButton)) {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("../forms/user.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+            Scene scene = new Scene(fxmlLoader.load(), userWindowWidth, userWindowHeight);
             Stage stage = new Stage();
             stage.setTitle("Режим пользователя");
             stage.setScene(scene);
             stage.show();
         } else {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("../forms/user.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+            fxmlLoader.setLocation(getClass().getResource("../forms/expert.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), expertWindowWidth, expertWindowHeight);
             Stage stage = new Stage();
             stage.setTitle("Режим эксперта");
             stage.setScene(scene);
@@ -66,8 +75,12 @@ public class AuthorizationController{
         neuralNetworkRadioButton.setDisable(false);
     }
     public void pressExpertModeRadioButton() {
-        methodToggleGroup.selectToggle(null);
+        methodToggleGroup.selectToggle(methodToggleGroup.getToggles().get(0));
         knowledgeBaseRadioButton.setDisable(true);
         neuralNetworkRadioButton.setDisable(true);
+    }
+    public static boolean isNeuralNetworkMode() {
+        return neuralNetworkMode
+                ;
     }
 }
