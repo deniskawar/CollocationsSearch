@@ -26,16 +26,19 @@ public class AuthorizationController{
     private RadioButton neuralNetworkRadioButton;
     @FXML
     private RadioButton knowledgeBaseRadioButton;
+    private ToggleGroup modeToggleGroup;
+    private ToggleGroup methodToggleGroup;
 
     public void initialize() {
-        ToggleGroup modeToggleGroup = new ToggleGroup();
+        modeToggleGroup = new ToggleGroup();
         userModeRadioButton.setToggleGroup(modeToggleGroup);
         expertModeRadioButton.setToggleGroup(modeToggleGroup);
-        ToggleGroup methodToggleGroup = new ToggleGroup();
+        methodToggleGroup = new ToggleGroup();
         knowledgeBaseRadioButton.setToggleGroup(methodToggleGroup);
         neuralNetworkRadioButton.setToggleGroup(methodToggleGroup);
         modeToggleGroup.selectToggle(modeToggleGroup.getToggles().get(0));
         methodToggleGroup.selectToggle(methodToggleGroup.getToggles().get(0));
+
     }
     public void pressSignInButton() throws IOException{
         if (/*modeBox.getSelectionModel().getSelectedItem().toString().equals("Режим пользователя")*/true) {
@@ -55,5 +58,16 @@ public class AuthorizationController{
             stage.setScene(scene);
             stage.show();
         }
+    }
+
+    public void pressUserModeRadioButton() {
+        methodToggleGroup.selectToggle(methodToggleGroup.getToggles().get(0));
+        knowledgeBaseRadioButton.setDisable(false);
+        neuralNetworkRadioButton.setDisable(false);
+    }
+    public void pressExpertModeRadioButton() {
+        methodToggleGroup.selectToggle(null);
+        knowledgeBaseRadioButton.setDisable(true);
+        neuralNetworkRadioButton.setDisable(true);
     }
 }

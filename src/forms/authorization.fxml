@@ -14,8 +14,8 @@
             <Font name="Gill Sans MT" size="19.0" />
          </font>
       </Text>
-      <RadioButton fx:id="userModeRadioButton" layoutX="14.0" layoutY="77.0" mnemonicParsing="false" text="Режим пользователя" />
-      <RadioButton fx:id="expertModeRadioButton" layoutX="163.0" layoutY="77.0" mnemonicParsing="false" text="Режим эксперта" />
+      <RadioButton fx:id="userModeRadioButton" layoutX="14.0" layoutY="77.0" mnemonicParsing="false" onAction="#pressUserModeRadioButton" text="Режим пользователя" />
+      <RadioButton fx:id="expertModeRadioButton" layoutX="163.0" layoutY="77.0" mnemonicParsing="false" onAction="#pressExpertModeRadioButton" text="Режим эксперта" />
       <RadioButton fx:id="knowledgeBaseRadioButton" layoutX="14.0" layoutY="108.0" mnemonicParsing="false" text="База правил" />
       <RadioButton fx:id="neuralNetworkRadioButton" layoutX="164.0" layoutY="108.0" mnemonicParsing="false" text="Нейронная сеть" />
    </children>
