@@ -1,12 +1,14 @@
 package main;
 
+import javafx.scene.control.CheckBox;
+
 public class TableRow {
     private String word;
     private String homonym;
     private boolean leftRight;
-    private boolean choice;
+    private CheckBox choice;
 
-    public TableRow(String word, String homonym, boolean leftRight, boolean choice) {
+    public TableRow(String word, String homonym, boolean leftRight, CheckBox choice) {
         this.word = word;
         this.homonym = homonym;
         this.leftRight = leftRight;
@@ -21,11 +23,11 @@ public class TableRow {
         this.leftRight = leftRight;
     }
 
-    public boolean isChoice() {
+    public CheckBox isChoice() {
         return choice;
     }
 
-    public void setChoice(boolean choice) {
+    public void setChoice(CheckBox choice) {
         this.choice = choice;
     }
 

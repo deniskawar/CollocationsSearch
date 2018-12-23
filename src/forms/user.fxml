@@ -10,8 +10,8 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="321.0" prefWidth="633.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.UserController">
    <children>
-      <Button layoutX="191.0" layoutY="62.0" mnemonicParsing="false" text="Загрузить файл..." />
-      <Button layoutX="186.0" layoutY="100.0" mnemonicParsing="false" text="Найти коллокации" />
+      <Button fx:id="loadFileButton" layoutX="191.0" layoutY="62.0" mnemonicParsing="false" onAction="#pressLoadFileButton" text="Загрузить файл..." />
+      <Button fx:id="findCollocationsButton" layoutX="186.0" layoutY="100.0" mnemonicParsing="false" onAction="#pressFindCollocationsButton" text="Найти коллокации" />
       <TextArea layoutX="19.0" layoutY="40.0" prefHeight="163.0" prefWidth="155.0" />
       <Text layoutX="20.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Анализируемый текст:" wrappingWidth="166.00000262260437">
          <font>
@@ -26,5 +26,7 @@
             <TableColumn fx:id="choiceColumn" prefWidth="47.0" text="Выбор" />
          </columns>
       </TableView>
+      <Button fx:id="submitButton" layoutX="427.0" layoutY="226.0" mnemonicParsing="false" onAction="#pressSubmitButton" text="Подтвердить" />
+      <Button fx:id="cancelButton" layoutX="442.0" layoutY="258.0" mnemonicParsing="false" onAction="#pressCancelButton" text="Отмена" />
    </children>
 </AnchorPane>

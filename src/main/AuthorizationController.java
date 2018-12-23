@@ -19,8 +19,8 @@ import java.util.Observable;
 public class AuthorizationController{
     private int expertWindowWidth = 458;
     private int expertWindowHeight = 224;
-    private int userWindowWidth = 507;
-    private int userWindowHeight = 245;
+    private int userWindowWidth = 633;
+    private int userWindowHeight = 321;
     private static boolean neuralNetworkMode;
     @FXML
     private AnchorPane authorizationWindow;
