@@ -1,5 +1,6 @@
 package neuralNetwork;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,8 @@ public class NeuralNetwork {
         output = new double[numberOfOutputs];
     }
 
-    public void performCalculation() {
+    public void performCalculation(double[] input) {
+        this.input = input;
 
     }
     public void performLearning() {

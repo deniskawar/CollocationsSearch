@@ -7,8 +7,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import words.Decoder;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserController {
@@ -46,7 +49,7 @@ public class UserController {
 
     }
     public void pressFindCollocationsButton() {
-
+        findCollocations();
         findCollocationsButton.setDisable(true);
         loadFileButton.setDisable(true);
         submitButton.setDisable(false);
@@ -89,6 +92,22 @@ public class UserController {
     public void initializeWithNeuralNetworkMethod() {
     }
     public void initializeWithKnowledgeDatabaseMethod() {
+
+    }
+    public void findCollocations() {
+        Map<String,Integer> characteristicsInfo = new HashMap<String, Integer>(){
+            {
+                put("Part of speech", 11); // часть речи
+                put("Kind of word", 3); // род
+                put("Case", 7); // падеж
+                put("Number", 3); // число
+                put("Transitivity", 3); // переходность
+                put("Voice", 3); // залог
+            }
+        };
+
+        Decoder decoder = new Decoder(characteristicsInfo);
+        decoder.decodeInputFileToArray(inputFile);
 
     }
 
