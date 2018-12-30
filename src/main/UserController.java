@@ -5,10 +5,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.io.File;
 
 
 public class UserController {
-    private boolean isNeuralNetworkMode;
+    private File inputFile;
     @FXML
     private TableColumn wordColumn;
     @FXML
@@ -29,17 +33,30 @@ public class UserController {
     private Button cancelButton;
 
     public void pressLoadFileButton() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll (
+            new FileChooser.ExtensionFilter("TXT", "*.txt")
+        );
+        fileChooser.setTitle("Выбрать файл");
+        File file = fileChooser.showOpenDialog(new Stage());
+        if (file != null) {
+            inputFile = file;
+        }
         findCollocationsButton.setDisable(false);
 
     }
     public void pressFindCollocationsButton() {
+
         findCollocationsButton.setDisable(true);
         loadFileButton.setDisable(true);
         submitButton.setDisable(false);
         cancelButton.setDisable(false);
     }
     public void pressSubmitButton() {
-
+        loadFileButton.setDisable(false);
+        findCollocationsButton.setDisable(true);
+        cancelButton.setDisable(true);
+        submitButton.setDisable(true);
     }
     public void pressCancelButton() {
         loadFileButton.setDisable(false);

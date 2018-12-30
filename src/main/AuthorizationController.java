@@ -80,7 +80,6 @@ public class AuthorizationController{
         neuralNetworkRadioButton.setDisable(true);
     }
     public static boolean isNeuralNetworkMode() {
-        return neuralNetworkMode
-                ;
+        return neuralNetworkMode;
     }
 }
