@@ -9,13 +9,14 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import words.Decoder;
 
-import java.io.File;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class UserController {
     private File inputFile;
+    private File originalTextFile;
     @FXML
     private TableColumn wordColumn;
     @FXML
@@ -34,6 +35,9 @@ public class UserController {
     private Button findCollocationsButton;
     @FXML
     private Button cancelButton;
+    @FXML
+    private TextArea originalTextArea;
+
 
     public void pressLoadFileButton() {
         FileChooser fileChooser = new FileChooser();
@@ -45,6 +49,26 @@ public class UserController {
         if (file != null) {
             inputFile = file;
         }
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile),"Cp1251"))){
+            originalTextFile = new File(bufferedReader.readLine().split("<")[1].split(">")[0]);
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(originalTextFile),"Cp1251"))) {
+            String s = bufferedReader.readLine();
+            while (s != null) {
+
+                originalTextArea.appendText(s +"\n");
+                s = bufferedReader.readLine();
+            }
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+
         findCollocationsButton.setDisable(false);
 
     }
@@ -98,7 +122,7 @@ public class UserController {
         Map<String,Integer> characteristicsInfo = new HashMap<String, Integer>(){
             {
                 put("Part of speech", 11); // часть речи
-                put("Kind of word", 3); // род
+                put("Kind of word", 4); // род
                 put("Case", 7); // падеж
                 put("Number", 3); // число
                 put("Transitivity", 3); // переходность
