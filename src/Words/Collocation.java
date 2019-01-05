@@ -25,4 +25,11 @@ public class Collocation {
     public void setSecondWordCharacteristics(List<Characteristic> secondWordCharacteristics) {
         this.secondWordCharacteristics = secondWordCharacteristics;
     }
+    public boolean isCollocation() {
+        return collocation;
+    }
+
+    public void setCollocation(boolean collocation) {
+        this.collocation = collocation;
+    }
 }

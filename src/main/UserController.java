@@ -134,6 +134,11 @@ public class UserController {
 
         Decoder decoder = new Decoder(characteristicsInfo);
         List<Collocation> collocations = decoder.decodeInputFileToArray(inputFile);
+
+        for (int i = 0; i < collocations.size(); i++) {
+
+        }
+
         System.out.println();
 
     }

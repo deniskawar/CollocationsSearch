@@ -5,8 +5,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import neuralNetwork.NeuralNetwork;
 
 public class Main extends Application {
+    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(2, 1);
     private Stage primaryStage;
     private int authorizationWindowWidth = 285;
     private int authorizationWindowHeight = 175;
@@ -17,6 +19,10 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, authorizationWindowWidth, authorizationWindowHeight));
         this.primaryStage = primaryStage;
         primaryStage.show();
+    }
+
+    public static NeuralNetwork getNeuralNetwork() {
+        return neuralNetwork;
     }
 
     public static void main(String[] args) {
