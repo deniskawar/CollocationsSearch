@@ -121,22 +121,13 @@ public class UserController {
 
     }
     public void findCollocations() {
-        Map<String,Integer> characteristicsInfo = new HashMap<String, Integer>(){
-            {
-                put("Part of speech", 11); // часть речи
-                put("Kind of word", 4); // род
-                put("Case", 7); // падеж
-                put("Number", 3); // число
-                put("Transitivity", 3); // переходность
-                put("Voice", 3); // залог
-            }
-        };
 
-        Decoder decoder = new Decoder(characteristicsInfo);
+
+        Decoder decoder = new Decoder(Main.getCharacteristicsInfo());
         List<Collocation> collocations = decoder.decodeInputFileToArray(inputFile);
 
         for (int i = 0; i < collocations.size(); i++) {
-
+            Main.getNeuralNetwork().performCalculation(collocations.get(i));
         }
 
         System.out.println();

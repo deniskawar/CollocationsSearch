@@ -7,8 +7,21 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import neuralNetwork.NeuralNetwork;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Main extends Application {
     private static final NeuralNetwork neuralNetwork = new NeuralNetwork(2, 1);
+    private static final Map<String,Integer> characteristicsInfo = new HashMap<String, Integer>(){
+        {
+            put("Part of speech", 11); // часть речи
+            put("Kind of word", 4); // род
+            put("Case", 7); // падеж
+            put("Number", 3); // число
+            put("Transitivity", 3); // переходность
+            put("Voice", 3); // залог
+        }
+    };
     private Stage primaryStage;
     private int authorizationWindowWidth = 285;
     private int authorizationWindowHeight = 175;
@@ -23,6 +36,10 @@ public class Main extends Application {
 
     public static NeuralNetwork getNeuralNetwork() {
         return neuralNetwork;
+    }
+
+    public static Map<String, Integer> getCharacteristicsInfo() {
+        return characteristicsInfo;
     }
 
     public static void main(String[] args) {
