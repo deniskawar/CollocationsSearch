@@ -12,11 +12,16 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import neuralNetwork.NeuralNetwork;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 
-public class AuthorizationController{
+public class AuthorizationController {
+
+
     private int expertWindowWidth = 458;
     private int expertWindowHeight = 224;
     private int userWindowWidth = 633;

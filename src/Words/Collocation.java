@@ -32,4 +32,20 @@ public class Collocation {
     public void setCollocation(boolean collocation) {
         this.collocation = collocation;
     }
+
+    public String getFirstWord() {
+        return firstWord;
+    }
+
+    public List<Characteristic> getFirstWordCharacteristics() {
+        return firstWordCharacteristics;
+    }
+
+    public String getSecondWord() {
+        return secondWord;
+    }
+
+    public List<Characteristic> getSecondWordCharacteristics() {
+        return secondWordCharacteristics;
+    }
 }
