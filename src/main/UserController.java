@@ -7,10 +7,12 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import words.Collocation;
 import words.Decoder;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -131,7 +133,8 @@ public class UserController {
         };
 
         Decoder decoder = new Decoder(characteristicsInfo);
-        decoder.decodeInputFileToArray(inputFile);
+        List<Collocation> collocations = decoder.decodeInputFileToArray(inputFile);
+        System.out.println();
 
     }
 
