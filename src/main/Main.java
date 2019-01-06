@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Main extends Application {
-    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(2, 1);
+    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(3, 1);
     private static final Map<String,Integer> characteristicsInfo = new LinkedHashMap<String, Integer>(){
         {
             put("Part of speech", 11); // часть речи   0 + 12 + 5 + 8 + 4 + 4 + 4 =
