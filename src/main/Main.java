@@ -12,10 +12,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Main extends Application {
-    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(3, 1);
+    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(3);
     private static final Map<String,Integer> characteristicsInfo = new LinkedHashMap<String, Integer>(){
         {
-            put("Part of speech", 11); // часть речи   0 + 12 + 5 + 8 + 4 + 4 + 4 =
+            put("Part of speech", 11); // часть речи
             put("Kind of word", 4); // род
             put("Case", 7); // падеж
             put("Number", 3); // число
@@ -23,6 +23,16 @@ public class Main extends Application {
             put("Voice", 3); // залог
         }
     };
+    private static final int iterationsCount = 5;
+    private static final int personsCount = 10; // только четное число
+    private static final int chromosomeLength = 10; // только четное число
+    private static double crossingOverProbability = 1;
+    private static double mutationProbability = 1;
+    private static double intervalA = -1;
+    private static double intervalB = 1;
+
+
+
     private Stage primaryStage;
     private int authorizationWindowWidth = 285;
     private int authorizationWindowHeight = 175;
@@ -45,5 +55,33 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static int getIterationsCount() {
+        return iterationsCount;
+    }
+
+    public static int getPersonsCount() {
+        return personsCount;
+    }
+
+    public static int getChromosomeLength() {
+        return chromosomeLength;
+    }
+
+    public static double getCrossingOverProbability() {
+        return crossingOverProbability;
+    }
+
+    public static double getMutationProbability() {
+        return mutationProbability;
+    }
+
+    public static double getIntervalA() {
+        return intervalA;
+    }
+
+    public static double getIntervalB() {
+        return intervalB;
     }
 }

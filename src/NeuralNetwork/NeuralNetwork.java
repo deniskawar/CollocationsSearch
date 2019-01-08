@@ -1,11 +1,10 @@
 package neuralNetwork;
 
-import main.AuthorizationController;
 import main.Main;
+import neuralNetwork.learning.GeneticAlgorithm;
 import words.Characteristic;
 import words.Collocation;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,14 +14,13 @@ public class NeuralNetwork {
     private List<Layer> layers;
     private boolean firstIteration = true;
     private int[] input;
-    private double[] output;
+    private double output;
     private int numberOfLayers;
-    private int numberOfOutputs;
+    private double error;
 
 
-    public NeuralNetwork(int numberOfLayers, int numberOfOutputs) {
+    public NeuralNetwork(int numberOfLayers) {
         this.numberOfLayers = numberOfLayers;
-        this.numberOfOutputs = numberOfOutputs;
         layers = new ArrayList<>();
         for (int i = 0; i < numberOfLayers; i++) {
             layers.add(new Layer());
@@ -30,11 +28,10 @@ public class NeuralNetwork {
     }
 
     public void performCalculation(Collocation collocation) {
-        output = new double[numberOfOutputs];
         decodeCollocationToInput(collocation);
-        initializeNeurons();
         if (firstIteration) {
-            createRandomEdges();
+            initializeNeurons();
+            createRandomEdges(new Random().nextDouble() * 2 - 1);
             firstIteration = false;
         }
         int currentLayerNumber = 0;
@@ -61,14 +58,19 @@ public class NeuralNetwork {
             }
             currentLayerNumber++;
         }
-        for (int i = 0; i < output.length; i++) {
-            output[i] = layers.get(layers.size()-1).getNeurons().get(i).getOutputValue();
-        }
-        collocation.setCollocation(output[0] > 0.5);
-    }
-    public void performLearning() {
 
+        output = layers.get(layers.size()-1).getNeurons().get(0).getOutputValue();
+        collocation.setCollocationByNeuralNetworkCalculation(output > 0.5);
     }
+
+    public void performLearning(List<Collocation> collocations) {
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm
+                (collocations, Main.getIterationsCount(), Main.getPersonsCount(),
+                        Main.getChromosomeLength(),Main.getCrossingOverProbability(), Main.getMutationProbability(),
+                        Main.getIntervalA(), Main.getIntervalB());
+        geneticAlgorithm.mainProcedure();
+    }
+
     private void decodeCollocationToInput(Collocation collocation) {
         int inputAmount = 0;
 
@@ -91,31 +93,73 @@ public class NeuralNetwork {
         }
 
     }
-
-    private void createRandomEdges() {
+    private void createRandomEdges(double value) {
         for (int i = 0; i < layers.size()-1; i++) {
             for (int j = 0; j < input.length; j++) {
                 for (int k = 0; k < input.length; k++) {
-                    layers.get(i).getNeurons().get(j).getInputSynapses().add(new Synapse(new Random().nextDouble() * 2 - 1));
+                    layers.get(i).getNeurons().get(j).getInputSynapses().add(new Synapse(value));
                 }
             }
         }
-        for (int j = 0; j < output.length; j++) {
-            for (int k = 0; k < input.length; k++) {
-                layers.get(layers.size() - 1).getNeurons().get(j).getInputSynapses().add(new Synapse(new Random().nextDouble() * 2 - 1));
+        for (int k = 0; k < input.length; k++) {
+            layers.get(layers.size() - 1).getNeurons().get(0).getInputSynapses().add(new Synapse(value));
+        }
+    }
+    public void createRandomEdges(int chromosomeLength) {
+        for (int i = 0; i < layers.size()-1; i++) {
+            for (int j = 0; j < input.length; j++) {
+                for (int k = 0; k < input.length; k++) {
+                    layers.get(i).getNeurons().get(j).getInputSynapses().add(new Synapse(GeneticAlgorithm.randomBinaryLength(chromosomeLength)));
+                }
             }
         }
-
+        for (int k = 0; k < input.length; k++) {
+            layers.get(layers.size() - 1).getNeurons().get(0).getInputSynapses().add(new Synapse(GeneticAlgorithm.randomBinaryLength(chromosomeLength)));
+        }
     }
-    private void initializeNeurons() {
+    public void initializeNeurons() {
         for (int i = 0; i < layers.size()-1; i++) {
             for (int j = 0; j < input.length; j++) {
                 layers.get(i).getNeurons().add(new Neuron());
             }
         }
+        layers.get(layers.size()-1).getNeurons().add(new Neuron());
 
-        for (int j = 0; j < output.length; j++) {
-            layers.get(layers.size()-1).getNeurons().add(new Neuron());
-        }
+    }
+
+    public List<Layer> getLayers() {
+        return layers;
+    }
+
+    public double getOutput() {
+        return output;
+    }
+
+    public int[] getInput() {
+        return input;
+    }
+
+    public void setInput(int[] input) {
+        this.input = input;
+    }
+
+    public double getError() {
+        return error;
+    }
+
+    public void setError(double error) {
+        this.error = error;
+    }
+
+    public void setLayers(List<Layer> layers) {
+        this.layers = layers;
+    }
+
+    public boolean isFirstIteration() {
+        return firstIteration;
+    }
+
+    public void setFirstIteration(boolean firstIteration) {
+        this.firstIteration = firstIteration;
     }
 }

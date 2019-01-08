@@ -8,7 +8,8 @@ public class Collocation {
     private List<Characteristic> firstWordCharacteristics = new ArrayList<>();
     private String secondWord;
     private List<Characteristic> secondWordCharacteristics = new ArrayList<>();
-    private boolean collocation = false;
+    private boolean collocationByNeuralNetworkCalculation = false;
+    private boolean collocationReally = false;
 
     public void setFirstWord(String firstWord) {
         this.firstWord = firstWord;
@@ -25,12 +26,12 @@ public class Collocation {
     public void setSecondWordCharacteristics(List<Characteristic> secondWordCharacteristics) {
         this.secondWordCharacteristics = secondWordCharacteristics;
     }
-    public boolean isCollocation() {
-        return collocation;
+    public boolean isCollocationByNeuralNetworkCalculation() {
+        return collocationByNeuralNetworkCalculation;
     }
 
-    public void setCollocation(boolean collocation) {
-        this.collocation = collocation;
+    public void setCollocationByNeuralNetworkCalculation(boolean collocationByNeuralNetworkCalculation) {
+        this.collocationByNeuralNetworkCalculation = collocationByNeuralNetworkCalculation;
     }
 
     public String getFirstWord() {
@@ -47,5 +48,13 @@ public class Collocation {
 
     public List<Characteristic> getSecondWordCharacteristics() {
         return secondWordCharacteristics;
+    }
+
+    public boolean isCollocationReally() {
+        return collocationReally;
+    }
+
+    public void setCollocationReally(boolean collocationReally) {
+        this.collocationReally = collocationReally;
     }
 }

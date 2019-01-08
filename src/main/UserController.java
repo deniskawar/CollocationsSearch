@@ -12,9 +12,7 @@ import words.Decoder;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class UserController {
@@ -22,6 +20,7 @@ public class UserController {
     private File originalTextFile;
     private List<TableRow> tableRows = new ArrayList<>();
     private List<Collocation> collocations;
+    private List<Collocation> allPastCollocations = new ArrayList<>();
     @FXML
     private TableColumn wordColumn;
     @FXML
@@ -86,8 +85,13 @@ public class UserController {
     }
     public void pressSubmitButton() {
         for (int i = 0; i < tableRows.size(); i++) {
-            System.out.println(((ObservableList<TableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected()); //!!!! TASK: SHOW CHECKBOX VALUE !!!
+            collocations.get(i).setCollocationReally(((ObservableList<TableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected());
         }
+
+        Main.getNeuralNetwork().performLearning(allPastCollocations);
+
+        collocationsTable.setItems(null);
+        tableRows = new ArrayList<>();
         loadFileButton.setDisable(false);
         findCollocationsButton.setDisable(true);
         cancelButton.setDisable(true);
@@ -95,6 +99,7 @@ public class UserController {
     }
     public void pressCancelButton() {
         collocationsTable.setItems(null);
+        tableRows = new ArrayList<>();
 
         loadFileButton.setDisable(false);
         findCollocationsButton.setDisable(true);
@@ -115,10 +120,10 @@ public class UserController {
 
     }
     public void findCollocations() {
-
-
         Decoder decoder = new Decoder(Main.getCharacteristicsInfo());
         collocations = decoder.decodeInputFileToArray(inputFile);
+
+        allPastCollocations.addAll(collocations);
 
         for (int i = 0; i < collocations.size(); i++) {
             Main.getNeuralNetwork().performCalculation(collocations.get(i));
@@ -133,7 +138,7 @@ public class UserController {
 
         for (int i = 0; i < collocations.size(); i++) {
             Collocation collocation = collocations.get(i);
-            tableRows.add(new TableRow(collocation.getFirstWord(), collocation.getSecondWord(), collocation.isCollocation(), new CheckBox()));
+            tableRows.add(new TableRow(collocation.getFirstWord(), collocation.getSecondWord(), collocation.isCollocationByNeuralNetworkCalculation(), new CheckBox()));
         }
 
         ObservableList<TableRow> list = FXCollections.observableArrayList(tableRows);
