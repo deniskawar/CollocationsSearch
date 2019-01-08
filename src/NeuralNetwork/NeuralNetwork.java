@@ -16,18 +16,23 @@ public class NeuralNetwork {
     private boolean firstIteration = true;
     private int[] input;
     private double[] output;
+    private int numberOfLayers;
+    private int numberOfOutputs;
 
 
     public NeuralNetwork(int numberOfLayers, int numberOfOutputs) {
+        this.numberOfLayers = numberOfLayers;
+        this.numberOfOutputs = numberOfOutputs;
         layers = new ArrayList<>();
         for (int i = 0; i < numberOfLayers; i++) {
             layers.add(new Layer());
         }
-        output = new double[numberOfOutputs];
     }
 
     public void performCalculation(Collocation collocation) {
+        output = new double[numberOfOutputs];
         decodeCollocationToInput(collocation);
+        initializeNeurons();
         if (firstIteration) {
             createRandomEdges();
             firstIteration = false;
@@ -59,9 +64,7 @@ public class NeuralNetwork {
         for (int i = 0; i < output.length; i++) {
             output[i] = layers.get(layers.size()-1).getNeurons().get(i).getOutputValue();
         }
-        System.out.println();
-        // I already can start to work on calculation because I have all input data in proper form
-
+        collocation.setCollocation(output[0] > 0.5);
     }
     public void performLearning() {
 
@@ -90,7 +93,6 @@ public class NeuralNetwork {
     }
 
     private void createRandomEdges() {
-        initializeNeurons();
         for (int i = 0; i < layers.size()-1; i++) {
             for (int j = 0; j < input.length; j++) {
                 for (int k = 0; k < input.length; k++) {

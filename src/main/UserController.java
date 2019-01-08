@@ -11,6 +11,7 @@ import words.Collocation;
 import words.Decoder;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import java.util.Map;
 public class UserController {
     private File inputFile;
     private File originalTextFile;
+    private List<TableRow> tableRows = new ArrayList<>();
+    private List<Collocation> collocations;
     @FXML
     private TableColumn wordColumn;
     @FXML
@@ -82,12 +85,17 @@ public class UserController {
         cancelButton.setDisable(false);
     }
     public void pressSubmitButton() {
+        for (int i = 0; i < tableRows.size(); i++) {
+            System.out.println(((ObservableList<TableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected()); //!!!! TASK: SHOW CHECKBOX VALUE !!!
+        }
         loadFileButton.setDisable(false);
         findCollocationsButton.setDisable(true);
         cancelButton.setDisable(true);
         submitButton.setDisable(true);
     }
     public void pressCancelButton() {
+        collocationsTable.setItems(null);
+
         loadFileButton.setDisable(false);
         findCollocationsButton.setDisable(true);
         cancelButton.setDisable(true);
@@ -98,21 +106,7 @@ public class UserController {
         submitButton.setDisable(true);
         cancelButton.setDisable(true);
 
-        ///////////////////////////////////////////
-        TableRow tableRow1 = new TableRow("Abcd", "123", true, new CheckBox());
-        TableRow tableRow2 = new TableRow("Fghi", "456", true, new CheckBox());
-        TableRow tableRow3 = new TableRow("Jklm", "789", false, new CheckBox());
 
-        ObservableList<TableRow> list = FXCollections.observableArrayList(tableRow1, tableRow2, tableRow3);
-
-        wordColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("word"));
-        homonymColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("homonym"));
-        leftRightColumn.setCellValueFactory(new PropertyValueFactory<TableRow, Boolean>("leftRight"));
-        choiceColumn.setCellValueFactory(new PropertyValueFactory<TableRow, CheckBox>("choice"));
-
-        collocationsTable.setItems(list);
-
-        //////////////////////////////////////////////
         if (AuthorizationController.isNeuralNetworkMode())  initializeWithNeuralNetworkMethod(); else initializeWithKnowledgeDatabaseMethod();
     }
     public void initializeWithNeuralNetworkMethod() {
@@ -124,14 +118,32 @@ public class UserController {
 
 
         Decoder decoder = new Decoder(Main.getCharacteristicsInfo());
-        List<Collocation> collocations = decoder.decodeInputFileToArray(inputFile);
+        collocations = decoder.decodeInputFileToArray(inputFile);
 
         for (int i = 0; i < collocations.size(); i++) {
             Main.getNeuralNetwork().performCalculation(collocations.get(i));
         }
 
+        refreshTable(collocations);
+
         System.out.println();
 
+    }
+    public void refreshTable(List<Collocation> collocations) {
+
+        for (int i = 0; i < collocations.size(); i++) {
+            Collocation collocation = collocations.get(i);
+            tableRows.add(new TableRow(collocation.getFirstWord(), collocation.getSecondWord(), collocation.isCollocation(), new CheckBox()));
+        }
+
+        ObservableList<TableRow> list = FXCollections.observableArrayList(tableRows);
+
+        wordColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("word"));
+        homonymColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("homonym"));
+        leftRightColumn.setCellValueFactory(new PropertyValueFactory<TableRow, Boolean>("result"));
+        choiceColumn.setCellValueFactory(new PropertyValueFactory<TableRow, CheckBox>("choice"));
+
+        collocationsTable.setItems(list);
     }
 
 }

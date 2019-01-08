@@ -5,22 +5,22 @@ import javafx.scene.control.CheckBox;
 public class TableRow {
     private String word;
     private String homonym;
-    private boolean leftRight;
+    private boolean result;
     private CheckBox choice;
 
-    public TableRow(String word, String homonym, boolean leftRight, CheckBox choice) {
+    public TableRow(String word, String homonym, boolean result, CheckBox choice) {
         this.word = word;
         this.homonym = homonym;
-        this.leftRight = leftRight;
+        this.result = result;
         this.choice = choice;
     }
 
-    public boolean isLeftRight() {
-        return leftRight;
+    public boolean isResult() {
+        return result;
     }
 
-    public void setLeftRight(boolean leftRight) {
-        this.leftRight = leftRight;
+    public void setResult(boolean result) {
+        this.result = result;
     }
 
     public CheckBox isChoice() {
