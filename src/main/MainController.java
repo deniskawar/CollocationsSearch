@@ -128,6 +128,7 @@ public class MainController {
         if (file != null) {
             fileForAnalysis = file;
             // НАДО ПРОТЕСТИТЬ СООТВЕТСТВУЕТ ЛИ ОН ЗАДУМАННОМУ ФОРМАТУ
+            //f
         }
     }
     public void pressKnowledgeBaseMenuItem() {
