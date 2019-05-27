@@ -10,15 +10,12 @@ public class Neuron {
     public List<Synapse> getInputSynapses() {
         return inputSynapses;
     }
-
     public void setInputSynapses(List<Synapse> inputSynapses) {
         this.inputSynapses = inputSynapses;
     }
-
     public double getOutputValue() {
         return outputValue;
     }
-
     public void setOutputValue(double outputValue) {
         this.outputValue = outputValue;
     }

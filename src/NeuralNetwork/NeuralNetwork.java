@@ -26,7 +26,6 @@ public class NeuralNetwork {
             layers.add(new Layer());
         }
     }
-
     public void performCalculation(Collocation collocation) {
         decodeCollocationToInput(collocation);
         if (firstIteration) {
@@ -62,15 +61,81 @@ public class NeuralNetwork {
         output = layers.get(layers.size()-1).getNeurons().get(0).getOutputValue();
         collocation.setCollocationByNeuralNetworkCalculation(output > 0.5);
     }
-
     public void performLearning(List<Collocation> collocations) {
+
+
         GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm
                 (collocations, Main.getIterationsCount(), Main.getPersonsCount(),
                         Main.getChromosomeLength(),Main.getCrossingOverProbability(), Main.getMutationProbability(),
                         Main.getIntervalA(), Main.getIntervalB());
         geneticAlgorithm.mainProcedure();
-    }
 
+
+/* FOR ANALYSIS
+        double q, U, allQ = 0, allU = 0;
+
+
+        for (int i = 10; i <= 100; i = i + 10) {
+            for (int j = 0; j < 10; j++) {
+                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(collocations,
+                        Main.getIterationsCount(), i, Main.getChromosomeLength(), 1, 1,
+                        Main.getIntervalA(), Main.getIntervalB());
+                geneticAlgorithm.mainProcedure();
+                q = 1 / ((1) / (Main.getNeuralNetwork().getError() + 1));
+                U = (geneticAlgorithm.getTotalIterations() - Main.getIterationsCount());
+                System.out.println("Iteration: " + i / 10 + "; N = " + i +
+                        "; q = " + q +
+                        "; U = " + U);
+                allQ = allQ + q;
+                allU = allU + U;
+            }
+            System.out.println("q = " + allQ / 10 + "; U = " + allU / 10);
+            allQ = 0; allU = 0;
+            System.out.println();
+        }
+
+        for (int i = 1; i <= 10; i = i + 1) {
+            for (int j = 0; j < 10; j++) {
+                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(collocations,
+                        Main.getIterationsCount(), 100, Main.getChromosomeLength(), (float)i / 10,
+                        1, Main.getIntervalA(), Main.getIntervalB());
+                geneticAlgorithm.mainProcedure();
+                q = 1 / ((1) / (Main.getNeuralNetwork().getError() + 1));
+                U = (geneticAlgorithm.getTotalIterations() - Main.getIterationsCount());
+                System.out.println("Iteration: " + i + "; pcross = " + (float)i/10 +
+                        "; q = " + q +
+                        "; U = " + U);
+                allQ = allQ + q;
+                allU = allU + U;
+            }
+            System.out.println("q = " + allQ / 10 + "; U = " + allU / 10);
+            allQ = 0; allU = 0;
+            System.out.println();
+        }
+
+        for (int i = 5; i <= 10; i = i + 1) {
+            for (int j = 0; j < 10; j++) {
+                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(collocations,
+                        Main.getIterationsCount(), 100, Main.getChromosomeLength(), 1,
+                        (float) i / 10,
+                        Main.getIntervalA(), Main.getIntervalB());
+                geneticAlgorithm.mainProcedure();
+                q = 1 / ((1) / (Main.getNeuralNetwork().getError() + 1));
+                U = (geneticAlgorithm.getTotalIterations() - Main.getIterationsCount());
+                System.out.println("Iteration: " + i + "; pmut = " + (float)i/10 +
+                        "; q = " + q +
+                        "; U = " + U);
+                allQ = allQ + q;
+                allU = allU + U;
+            }
+            System.out.println("q = " + allQ / 10 + "; U = " + allU / 10);
+            allQ = 0; allU = 0;
+            System.out.println();
+        }
+
+ FOR ANALYSIS */
+
+    }
     private void decodeCollocationToInput(Collocation collocation) {
         int inputAmount = 0;
 
@@ -126,40 +191,32 @@ public class NeuralNetwork {
         layers.get(layers.size()-1).getNeurons().add(new Neuron());
 
     }
-
     public List<Layer> getLayers() {
         return layers;
     }
-
     public double getOutput() {
         return output;
     }
-
     public int[] getInput() {
         return input;
     }
-
     public void setInput(int[] input) {
         this.input = input;
     }
-
     public double getError() {
         return error;
     }
-
     public void setError(double error) {
         this.error = error;
     }
-
     public void setLayers(List<Layer> layers) {
         this.layers = layers;
     }
-
     public boolean isFirstIteration() {
         return firstIteration;
     }
-
     public void setFirstIteration(boolean firstIteration) {
         this.firstIteration = firstIteration;
     }
+
 }

@@ -1,22 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="authorizationWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="175.0" prefWidth="285.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.AuthorizationController">
+<AnchorPane fx:id="authorizationWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="165.0" prefWidth="279.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.AuthorizationController">
    <children>
-      <Button fx:id="signInButton" layoutX="104.0" layoutY="140.0" mnemonicParsing="false" onAction="#pressSignInButton" text="Войти" />
-      <Text layoutX="44.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Экспертная система поиска коллокаций" textAlignment="CENTER" wrappingWidth="180.00000262260437">
+      <Button fx:id="signInButton" layoutX="115.0" layoutY="128.0" mnemonicParsing="false" onAction="#pressSignInButton" text="Войти" />
+      <RadioButton fx:id="userModeRadioButton" layoutX="10.0" layoutY="67.0" mnemonicParsing="false" onAction="#pressUserModeRadioButton" text="Режим пользователя" />
+      <RadioButton fx:id="expertModeRadioButton" layoutX="159.0" layoutY="67.0" mnemonicParsing="false" onAction="#pressExpertModeRadioButton" text="Режим эксперта" />
+      <RadioButton fx:id="knowledgeBaseRadioButton" layoutX="10.0" layoutY="98.0" mnemonicParsing="false" text="База правил" />
+      <RadioButton fx:id="neuralNetworkRadioButton" layoutX="160.0" layoutY="98.0" mnemonicParsing="false" text="Нейронная сеть" />
+      <MenuBar prefHeight="25.0" prefWidth="279.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Файл">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Создать" />
+                  <MenuItem mnemonicParsing="false" text="Загрузить" />
+                  <MenuItem mnemonicParsing="false" text="Сохранить" />
+                  <MenuItem mnemonicParsing="false" text="Свойства" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Редактирование">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Вид">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="Помощь">
+              <items>
+                <MenuItem mnemonicParsing="false" text="О программе" />
+              </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+      <Text layoutX="19.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Выберите режим работы программы">
          <font>
-            <Font name="Gill Sans MT" size="19.0" />
+            <Font size="14.0" />
          </font>
       </Text>
-      <RadioButton fx:id="userModeRadioButton" layoutX="14.0" layoutY="77.0" mnemonicParsing="false" onAction="#pressUserModeRadioButton" text="Режим пользователя" />
-      <RadioButton fx:id="expertModeRadioButton" layoutX="163.0" layoutY="77.0" mnemonicParsing="false" onAction="#pressExpertModeRadioButton" text="Режим эксперта" />
-      <RadioButton fx:id="knowledgeBaseRadioButton" layoutX="14.0" layoutY="108.0" mnemonicParsing="false" text="База правил" />
-      <RadioButton fx:id="neuralNetworkRadioButton" layoutX="164.0" layoutY="108.0" mnemonicParsing="false" text="Нейронная сеть" />
+      <Button fx:id="testBDButtton" layoutX="197.0" layoutY="128.0" mnemonicParsing="false" onAction="#pressTestBDButton" text="TestBD" />
    </children>
 </AnchorPane>

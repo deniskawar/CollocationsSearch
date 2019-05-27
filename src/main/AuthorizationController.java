@@ -1,5 +1,6 @@
 package main;
 
+import database.BD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import javafx.stage.Stage;
 import neuralNetwork.NeuralNetwork;
 
 import java.io.IOException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -24,7 +26,7 @@ public class AuthorizationController {
 
     private int expertWindowWidth = 458;
     private int expertWindowHeight = 224;
-    private int userWindowWidth = 633;
+    private int userWindowWidth = 682;
     private int userWindowHeight = 321;
     private static boolean neuralNetworkMode;
     @FXML
@@ -41,6 +43,53 @@ public class AuthorizationController {
     private RadioButton knowledgeBaseRadioButton;
     private ToggleGroup modeToggleGroup;
     private ToggleGroup methodToggleGroup;
+    @FXML
+    private Button testBDButton;
+
+    public void pressTestBDButton() {
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        String url = "jdbc:mysql://localhost:3306/test_base"+
+                "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC";
+        String user = "root";
+        String password = "admin";
+        String query = "select * from collocations";
+        String neuralNetwork = null;
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String secondname = rs.getString("secondname");
+                System.out.println(name + " " + secondname);
+            }
+
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+            try {stmt.close();}
+            catch (SQLException se) {
+
+            }
+            try {rs.close();}
+            catch (SQLException se) {
+
+            }
+        }
+    }
 
     public void initialize() {
         modeToggleGroup = new ToggleGroup();
@@ -52,12 +101,16 @@ public class AuthorizationController {
         modeToggleGroup.selectToggle(modeToggleGroup.getToggles().get(0));
         methodToggleGroup.selectToggle(methodToggleGroup.getToggles().get(0));
 
+        //test sh*t
+
+        //
+
     }
     public void pressSignInButton() throws IOException {
         neuralNetworkMode = methodToggleGroup.getSelectedToggle().equals(neuralNetworkRadioButton);
         if (modeToggleGroup.getSelectedToggle().equals(userModeRadioButton)) {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("../forms/user.fxml"));
+            fxmlLoader.setLocation(getClass().getResource("../forms/main.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), userWindowWidth, userWindowHeight);
             Stage stage = new Stage();
             stage.setTitle("Режим пользователя");
@@ -73,7 +126,6 @@ public class AuthorizationController {
             stage.show();
         }
     }
-
     public void pressUserModeRadioButton() {
         methodToggleGroup.selectToggle(methodToggleGroup.getToggles().get(0));
         knowledgeBaseRadioButton.setDisable(false);

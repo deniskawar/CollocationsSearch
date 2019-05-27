@@ -8,21 +8,19 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class Decoder {
-    List<Collocation> collocations = new ArrayList<>();
-    List<Characteristic> characteristicsInfo = new ArrayList<>();
-
+    private List<Collocation> collocations = new ArrayList<>();
+    private List<Characteristic> characteristicsInfo = new ArrayList<>();
 
     public Decoder(Map<String, Integer> characteristicsInfo) {
         for (Map.Entry<String, Integer> entry : characteristicsInfo.entrySet()) {
             this.characteristicsInfo.add(new Characteristic(entry.getKey(), entry.getValue()));
         }
     }
-
     public List<Collocation> decodeInputFileToArray(File inputFile) {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile),"Cp1251"))) {
+        /*try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile),"Cp1251"))) {
             bufferedReader.readLine();
             String s = bufferedReader.readLine();
-            while (!(s == null)) {
+            while (s != null) {
 
                 s = s.split("\\{")[1].split("}")[0];
                 String[] lol = s.split("#");
@@ -56,6 +54,49 @@ public class Decoder {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        */
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "Cp1251"))) {
+            bufferedReader.readLine();
+            String s = "";
+            int symbol;
+            while ((symbol = bufferedReader.read()) != -1) {
+                s = s + (char) symbol;
+                while ((char)(symbol = bufferedReader.read()) != '!') {
+                    if (symbol == -1) throw new Exception("Неверный формат текста");
+                    s = s + (char) symbol;
+                }
+                String[] wordsWithCharacteristics;
+                wordsWithCharacteristics = s.split("#");
+                List<Word> words = new ArrayList<>();
+                for (int i = 1; i < wordsWithCharacteristics.length; i++) {
+                    String word = wordsWithCharacteristics[i].split("<")[0];
+                    String characteristicsString = wordsWithCharacteristics[i].split("<")[1].split(">")[0];
+                    if (characteristicsString.contains("?")) {
+                        // дописать для омомнимов
+                    }
+                    else {
+                        String[] characteristicsIntegerValues = characteristicsString.split("_");
+                        List<List<Characteristic>> characteristics = new ArrayList<>();
+                        characteristics.add(new ArrayList<>());
+                        for (int j = 0; j < characteristicsIntegerValues.length; j++) {
+                            String name = characteristicsInfo.get(j).getName();
+                            int maxValue = characteristicsInfo.get(j).getMaxValue();
+                            int value = Integer.parseInt(characteristicsIntegerValues[j]);
+                            Characteristic characteristic = new Characteristic(name, maxValue);
+                            characteristic.setValue(value);
+                            characteristics.get(0).add(characteristic);
+                        }
+                        words.add(new Word(word, characteristics));
+                    }
+                }
+                System.out.println();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+
+
         return collocations;
     }
 }

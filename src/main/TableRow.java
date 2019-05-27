@@ -5,21 +5,21 @@ import javafx.scene.control.CheckBox;
 public class TableRow {
     private String word;
     private String homonym;
-    private boolean result;
+    private String result;
     private CheckBox choice;
 
-    public TableRow(String word, String homonym, boolean result, CheckBox choice) {
+    public TableRow(String word, String homonym, String result, CheckBox choice) {
         this.word = word;
         this.homonym = homonym;
         this.result = result;
         this.choice = choice;
     }
 
-    public boolean isResult() {
+    public String isResult() {
         return result;
     }
 
-    public void setResult(boolean result) {
+    public void setResult(String result) {
         this.result = result;
     }
 

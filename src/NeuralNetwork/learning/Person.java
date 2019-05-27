@@ -10,19 +10,15 @@ public class Person {
         this.position = position;
         this.neuralNetwork = neuralNetwork;
     }
-
     public int getPosition() {
         return position;
     }
-
     public void setPosition(int position) {
         this.position = position;
     }
-
     public NeuralNetwork getNeuralNetwork() {
         return neuralNetwork;
     }
-
     public void setNeuralNetwork(NeuralNetwork neuralNetwork) {
         this.neuralNetwork = neuralNetwork;
     }
