@@ -10,4 +10,7 @@ public class Word {
         this.name = name;
         this.characteristics = characteristics;
     }
+    public boolean isHomonym() {
+        return characteristics.size() > 1;
+    }
 }

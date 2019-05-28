@@ -10,6 +10,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import words.Collocation;
+import words.Decoder;
+import words.Word;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -17,11 +19,13 @@ import java.util.List;
 
 
 public class MainController {
+    /*
     private File inputFile;
     private File originalTextFile;
     private List<TableRow> tableRows = new ArrayList<>();
     private List<Collocation> collocations;
     private List<Collocation> allPastCollocations = new ArrayList<>();
+    */
 
     /*
     @FXML
@@ -127,8 +131,23 @@ public class MainController {
         File file = fileChooser.showOpenDialog(Main.primaryStage);
         if (file != null) {
             fileForAnalysis = file;
-            // НАДО ПРОТЕСТИТЬ СООТВЕТСТВУЕТ ЛИ ОН ЗАДУМАННОМУ ФОРМАТУ
-            //f
+            String validationResult = Decoder.fileValidation(fileForAnalysis);
+            if (validationResult != null) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Ошибка файла");
+                alert.setHeaderText(null);
+                alert.setContentText(validationResult);
+                alert.show();
+            }
+            else {
+                findCollocationsMenuItem.setDisable(false);
+                addRuleMenuItem.setDisable(false);
+                showRulesMenuItem.setDisable(false);
+                removeRuleMenuItem.setDisable(false);
+                List<Word> words = Decoder.decodeInputFileToArray(fileForAnalysis);
+
+                //ОСТАНОВИЛСЯ ТУТ
+            }
         }
     }
     public void pressKnowledgeBaseMenuItem() {
@@ -171,6 +190,54 @@ public class MainController {
     }
     public Text getCurrentProjectText() {
         return currentProjectText;
+    }
+
+    public MenuItem getCreateProjectMenuItem() {
+        return createProjectMenuItem;
+    }
+
+    public MenuItem getChooseProjectMenuItem() {
+        return chooseProjectMenuItem;
+    }
+
+    public MenuItem getLoadFileMenuItem() {
+        return loadFileMenuItem;
+    }
+
+    public MenuItem getFindCollocationsMenuItem() {
+        return findCollocationsMenuItem;
+    }
+
+    public CheckMenuItem getKnowledgeBaseMenuItem() {
+        return knowledgeBaseMenuItem;
+    }
+
+    public CheckMenuItem getNeuralNetworkMenuItem() {
+        return neuralNetworkMenuItem;
+    }
+
+    public MenuItem getAddRuleMenuItem() {
+        return addRuleMenuItem;
+    }
+
+    public MenuItem getRemoveRuleMenuItem() {
+        return removeRuleMenuItem;
+    }
+
+    public MenuItem getShowRulesMenuItem() {
+        return showRulesMenuItem;
+    }
+
+    public MenuItem getModeMenuItem() {
+        return modeMenuItem;
+    }
+
+    public MenuItem getHelpMenuItem() {
+        return helpMenuItem;
+    }
+
+    public MenuItem getAboutProgramMenuItem() {
+        return aboutProgramMenuItem;
     }
     //_________________________________________________________________________________
 

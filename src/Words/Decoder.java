@@ -1,5 +1,7 @@
 package words;
 
+import main.Main;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,45 +18,8 @@ public class Decoder {
             this.characteristicsInfo.add(new Characteristic(entry.getKey(), entry.getValue()));
         }
     }
-    public List<Collocation> decodeInputFileToArray(File inputFile) {
-        /*try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile),"Cp1251"))) {
-            bufferedReader.readLine();
-            String s = bufferedReader.readLine();
-            while (s != null) {
-
-                s = s.split("\\{")[1].split("}")[0];
-                String[] lol = s.split("#");
-                String first = lol[1];
-                String second = lol[2];
-                String[] ch1 = first.split("_");
-                String[] ch2 = second.split("_");
-
-                Collocation collocation = new Collocation();
-                collocation.setFirstWord(ch1[0]);
-                collocation.setSecondWord(ch2[0]);
-
-                List<Characteristic> firstCharacteristics = new ArrayList<>();
-                List<Characteristic> secondCharacteristics = new ArrayList<>();
-                for (int i = 1; i < ch1.length; i++) {
-                    String characteristicName = characteristicsInfo.get(i-1).getName();
-                    int characteristicMaxValue = characteristicsInfo.get(i-1).getMaxValue();
-
-                    firstCharacteristics.add(new Characteristic(characteristicName, characteristicMaxValue));
-                    firstCharacteristics.get(i-1).setValue(Integer.parseInt(ch1[i]));
-
-                    secondCharacteristics.add(new Characteristic(characteristicName, characteristicMaxValue));
-                    secondCharacteristics.get(i-1).setValue(Integer.parseInt(ch2[i]));
-                }
-                collocation.setFirstWordCharacteristics(firstCharacteristics);
-                collocation.setSecondWordCharacteristics(secondCharacteristics);
-                collocations.add(collocation);
-
-                s = bufferedReader.readLine();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        */
+    public static List<Word> decodeInputFileToArray(File inputFile) {
+        /*
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "Cp1251"))) {
             bufferedReader.readLine();
             String s = "";
@@ -94,9 +59,138 @@ public class Decoder {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-
-
         return collocations;
+        */
+        List<Map.Entry<String,Integer>> characteristicsInfo = new ArrayList<>(Main.getCharacteristicsInfo().entrySet());
+        List<Word> wordsList = new ArrayList<>();
+        StringBuilder fullTextStringBuilder = new StringBuilder();
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "Cp1251"))) {
+            bufferedReader.readLine();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                fullTextStringBuilder.append(line);
+            }
+            String[] sentences = new String[1];
+            if (fullTextStringBuilder.toString().contains("!")) {
+                sentences = fullTextStringBuilder.toString().split("!");
+            } else {
+                sentences[0] = fullTextStringBuilder.toString();
+            }
+            for (int i = 0; i < sentences.length; i++) {
+                String[] wordsWithCharacteristics = sentences[i].split("#");
+                String[] words = new String[wordsWithCharacteristics.length];
+                String[] characteristics = new String[wordsWithCharacteristics.length];
+                for (int j = 1; j < wordsWithCharacteristics.length; j++) {
+                    characteristics[j] = wordsWithCharacteristics[j].substring(wordsWithCharacteristics[j].indexOf("<")+1, wordsWithCharacteristics[j].indexOf(">"));
+                    words[j] = wordsWithCharacteristics[j].split("<")[0];
+                }
+                for (int j = 1; j < characteristics.length; j++) {
+                    List<List<Characteristic>> characteristicListList = new ArrayList<>();
+                    if (characteristics[j].contains("?"))
+                    {
+                        String[] homonymNumbers = characteristics[j].split("\\?");
+                        for (int k = 0; k < homonymNumbers.length; k++) {
+                            String[] numbers = homonymNumbers[k].split("_");
+                            List<Characteristic> characteristicList = new ArrayList<>();
+                            for (int m = 0; m < numbers.length; m++) {
+                                int value = Integer.parseInt(numbers[m]);
+                                Characteristic characteristic = new Characteristic(characteristicsInfo.get(m).getKey(), characteristicsInfo.get(m).getValue());
+                                characteristic.setValue(value);
+                                characteristicList.add(characteristic);
+                            }
+                            characteristicListList.add(characteristicList);
+                        }
+                        Word word = new Word(words[j], characteristicListList);
+                        wordsList.add(word);
+                    }
+                    else {
+                        String[] numbers = characteristics[j].split("_");
+                        List<Characteristic> characteristicList = new ArrayList<>();
+                        for (int k = 0; k < numbers.length; k++) {
+                            int value = Integer.parseInt(numbers[k]);
+                            Characteristic characteristic = new Characteristic(characteristicsInfo.get(k).getKey(), characteristicsInfo.get(k).getValue());
+                            characteristic.setValue(value);
+                            characteristicList.add(characteristic);
+                        }
+                        characteristicListList.add(characteristicList);
+                        Word word = new Word(words[j], characteristicListList);
+                        wordsList.add(word);
+                    }
+                }
+            }
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return wordsList;
+    }
+
+    public static String fileValidation(File file) {
+        StringBuilder fullTextStringBuilder = new StringBuilder();
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "Cp1251"))) {
+            bufferedReader.readLine();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                fullTextStringBuilder.append(line);
+            }
+
+            if (fullTextStringBuilder.toString().isEmpty()) return "Файл пуст";
+            if (!fullTextStringBuilder.toString().contains("?")) return "В тексте отсутствуют омонимы";
+            String[] sentences = new String[1];
+            if (fullTextStringBuilder.toString().contains("!")) {
+                sentences = fullTextStringBuilder.toString().split("!");
+                for (int i = 0; i < sentences.length; i++) {
+                    if (!sentences[i].contains("#")) return "Ошибка в разметке слов";
+                }
+            } else {
+                sentences[0] = fullTextStringBuilder.toString();
+                if (!sentences[0].contains("#")) return "Ошибка в разметке слов";
+            }
+            for (int i = 0; i < sentences.length; i++) {
+                String[] wordsWithCharacteristics = sentences[i].split("#");
+                String[] characteristics = new String[wordsWithCharacteristics.length];
+                for (int j = 1; j < wordsWithCharacteristics.length; j++) {
+                    if (!wordsWithCharacteristics[j].contains("<") && !wordsWithCharacteristics[j].contains(">")) return "Ошибка в разметке снаружи характеристик";
+                    characteristics[j] = wordsWithCharacteristics[j].substring(wordsWithCharacteristics[j].indexOf("<")+1, wordsWithCharacteristics[j].indexOf(">"));
+
+                }
+                for (int j = 1; j < characteristics.length; j++) {
+                    if (characteristics[j].contains("?"))
+                    {
+                        String[] homonymNumbers = characteristics[j].split("\\?");
+                        for (int k = 0; k < homonymNumbers.length; k++) {
+                            if (!homonymNumbers[k].contains("_")) return "Ошибка в разметке внутри характеристик омонима";
+                            String[] numbers = homonymNumbers[k].split("_");
+                            if (numbers.length != Main.getCharacteristicsInfo().size()) return "Ошибка в количестве характеристик";
+                            for (int m = 0; m < numbers.length; m++) {
+                                try {
+                                    Integer.parseInt(numbers[m]);
+                                } catch (NumberFormatException ex) {
+                                    return "Ошибка в числах характеристик";
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (!characteristics[j].contains("_")) return "Ошибка в разметке внутри характеристик";
+                        String[] numbers = characteristics[j].split("_");
+                        if (numbers.length != Main.getCharacteristicsInfo().size()) return "Ошибка в количестве характеристик";
+                        for (int k = 0; k < numbers.length; k++) {
+                            try {
+                                Integer.parseInt(numbers[k]);
+                            } catch (NumberFormatException ex) {
+                                return "Ошибка в числах характеристик";
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }
