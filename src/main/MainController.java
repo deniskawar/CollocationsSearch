@@ -1,5 +1,6 @@
 package main;
 
+import database.DB;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -166,7 +167,9 @@ public class MainController {
     }
     public void pressFindCollocationsMenuItem() {
         for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
-        System.out.println();
+        long st = System.nanoTime();
+        DB.addNeuralNetworkToDB(Main.getNeuralNetwork(), Main.currentProjectId);
+        System.out.println("Запись в БД завершена - " + ((System.nanoTime()-st)*Math.pow(10, -9)) );
     }
     public void pressAddRuleMenuItem() {
 

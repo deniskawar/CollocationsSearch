@@ -1,10 +1,9 @@
 package main;
 
-import database.BD;
+import database.DB;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class CreateProjectController {
@@ -20,8 +19,8 @@ public class CreateProjectController {
 
     public void pressCreateProjectButton() {
         String projectName = projectNameTextField.getText();
-        if (!projectName.isEmpty() && !BD.projectRepeatCheckDB(projectName)) {
-            int projectId = BD.addProjectToDB(projectName);
+        if (!projectName.isEmpty() && !DB.projectRepeatCheckDB(projectName)) {
+            int projectId = DB.addProjectToDB(projectName);
             Main.currentProjectId = projectId;
             Main.currentProjectName = projectName;
             Stage stage = (Stage) projectNameTextField.getScene().getWindow();

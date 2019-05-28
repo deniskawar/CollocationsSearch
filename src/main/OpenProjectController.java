@@ -1,6 +1,6 @@
 package main;
 
-import database.BD;
+import database.DB;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,9 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -36,7 +33,7 @@ public class OpenProjectController {
     }
 
     public void initialize() {
-        Map<Integer, String> projects = BD.getProjectsFromDB();
+        Map<Integer, String> projects = DB.getProjectsFromDB();
         for (Map.Entry<Integer, String> entry : projects.entrySet()) {
             openProjectTableRows.add(new OpenProjectTableRow(entry.getKey(), entry.getValue()));
         }
@@ -59,7 +56,7 @@ public class OpenProjectController {
     }
     public void pressDeleteProjectButton() {
         if (openProjectTable.getSelectionModel().getSelectedItem() != null && ((OpenProjectTableRow) openProjectTable.getSelectionModel().getSelectedItem()).getProjectId() != Main.currentProjectId) {
-            BD.deleteProjectFromDBById(((OpenProjectTableRow) openProjectTable.getSelectionModel().getSelectedItem()).getProjectId());
+            DB.deleteProjectFromDBById(((OpenProjectTableRow) openProjectTable.getSelectionModel().getSelectedItem()).getProjectId());
             openProjectTable.getItems().remove(openProjectTable.getSelectionModel().getSelectedItem());
         }
     }

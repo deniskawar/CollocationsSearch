@@ -1,25 +1,16 @@
 package main;
 
-import database.BD;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import neuralNetwork.NeuralNetwork;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
 
 public class AuthorizationController {
 
