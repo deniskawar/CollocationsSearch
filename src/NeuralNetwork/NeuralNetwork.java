@@ -5,10 +5,7 @@ import neuralNetwork.learning.GeneticAlgorithm;
 import words.Characteristic;
 import words.Collocation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class NeuralNetwork {
     private List<Layer> layers;
@@ -17,7 +14,7 @@ public class NeuralNetwork {
     private double output;
     private int numberOfLayers;
     private double error;
-
+    private Random RANDOM = new Random();
 
     public NeuralNetwork(int numberOfLayers) {
         this.numberOfLayers = numberOfLayers;
@@ -26,11 +23,18 @@ public class NeuralNetwork {
             layers.add(new Layer());
         }
     }
+    public Set<Double> pickRandom(int n, int k) {
+        final Set<Double> picked = new HashSet<>();
+        while (picked.size() < n) {
+            picked.add(RANDOM.nextDouble() * 2 - 1);
+        }
+        return picked;
+    }
     public void performCalculation(Collocation collocation) {
         decodeCollocationToInput(collocation);
         if (firstIteration) {
             initializeNeurons();
-            createRandomEdges(new Random().nextDouble() * 2 - 1);
+            createRandomEdges(); // nextDouble() * 2 - 1
             firstIteration = false;
         }
         int currentLayerNumber = 0;
@@ -137,6 +141,7 @@ public class NeuralNetwork {
 
     }
     private void decodeCollocationToInput(Collocation collocation) {
+        /*
         int inputAmount = 0;
 
         for (Map.Entry<String, Integer> entry : Main.getCharacteristicsInfo().entrySet()) {
@@ -156,17 +161,43 @@ public class NeuralNetwork {
             input[index + characteristic.getValue()] = 1; //
             index += characteristic.getMaxValue() + 1;
         }
+        */
+        // ТУТ ПЕРЕДЕЛАТЬ !!! ВАЖНО!!!!
+        int inputAmount = 0;
 
+        for (Map.Entry<String, Integer> entry : Main.getCharacteristicsInfo().entrySet()) {
+            inputAmount += entry.getValue() + 1;
+        }
+        inputAmount *= (collocation.getFirstWord().getCharacteristics().size() + collocation.getSecondWord().getCharacteristics().size());
+        input = new int[inputAmount];
+        for (int i = 0; i < input.length; i++) {
+            input[i] = 0;
+        }
+        int index = 0;
+        for (List<Characteristic> characteristicList : collocation.getFirstWord().getCharacteristics()) {
+            for (Characteristic characteristic : characteristicList) {
+                input[index + characteristic.getValue()] = 1; //
+                index += characteristic.getMaxValue() + 1;
+            }
+        }
+        for (List<Characteristic> characteristicList : collocation.getSecondWord().getCharacteristics()) {
+            for (Characteristic characteristic : characteristicList) {
+                input[index + characteristic.getValue()] = 1; //
+                index += characteristic.getMaxValue() + 1;
+            }
+        }
     }
-    private void createRandomEdges(double value) {
+    private void createRandomEdges() {
         for (int i = 0; i < layers.size()-1; i++) {
             for (int j = 0; j < input.length; j++) {
                 for (int k = 0; k < input.length; k++) {
+                    double value = RANDOM.nextDouble() * 2 - 1;
                     layers.get(i).getNeurons().get(j).getInputSynapses().add(new Synapse(value));
                 }
             }
         }
         for (int k = 0; k < input.length; k++) {
+            double value = RANDOM.nextDouble() * 2 - 1;
             layers.get(layers.size() - 1).getNeurons().get(0).getInputSynapses().add(new Synapse(value));
         }
     }

@@ -85,6 +85,7 @@ public class MainController {
     private static int openProjectWindowHeight = 278;
     private static int createProjectWindowWidth = 261;
     private static int createProjectWindowHeight = 112;
+    private List<Collocation> collocations;
 
     private File fileForAnalysis;
 
@@ -145,7 +146,12 @@ public class MainController {
                 showRulesMenuItem.setDisable(false);
                 removeRuleMenuItem.setDisable(false);
                 List<Word> words = Decoder.decodeInputFileToArray(fileForAnalysis);
-
+                for (Word word : words) word.defineHomonym();
+                List<Collocation> collocations = new ArrayList<>();
+                for (int i = 0; i < words.size()-1; i++) {
+                    if (words.get(i).isHomonym() || words.get(i+1).isHomonym()) collocations.add(new Collocation(words.get(i), words.get(i+1)));
+                }
+                this.collocations = collocations;
                 //ОСТАНОВИЛСЯ ТУТ
             }
         }
@@ -159,7 +165,8 @@ public class MainController {
         neuralNetworkMenuItem.setSelected(true);
     }
     public void pressFindCollocationsMenuItem() {
-
+        for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
+        System.out.println();
     }
     public void pressAddRuleMenuItem() {
 
