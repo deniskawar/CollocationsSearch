@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Main extends Application {
-    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(3);
+    private static NeuralNetwork neuralNetwork = new NeuralNetwork(3);
     private static final Map<String,Integer> characteristicsInfo = new LinkedHashMap<String, Integer>(){
         {
             put("Часть речи", 8);
@@ -87,5 +87,9 @@ public class Main extends Application {
 
     public static double getIntervalB() {
         return intervalB;
+    }
+
+    public static void setNeuralNetwork(NeuralNetwork neuralNetwork) {
+        Main.neuralNetwork = neuralNetwork;
     }
 }

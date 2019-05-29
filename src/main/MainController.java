@@ -1,11 +1,14 @@
 package main;
 
 import database.DB;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -18,13 +21,14 @@ import words.Word;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainController {
     /*
     private File inputFile;
     private File originalTextFile;
-    private List<TableRow> tableRows = new ArrayList<>();
+    private List<CollocationsTableRow> tableRows = new ArrayList<>();
     private List<Collocation> collocations;
     private List<Collocation> allPastCollocations = new ArrayList<>();
     */
@@ -81,6 +85,20 @@ public class MainController {
     private Text currentProjectText;
     @FXML
     private TextArea textArea;
+    @FXML
+    private TableView collocationsTableView;
+    @FXML
+    private TableColumn wordColumn;
+    @FXML
+    private TableColumn homonymColumn;
+    @FXML
+    private TableColumn neuralNetworkDecisionColumn;
+    @FXML
+    private TableColumn choiceColumn;
+    @FXML
+    private Button submitButton;
+    @FXML
+    private Button cancelButton;
 
 
     private static int openProjectWindowWidth = 414;
@@ -90,7 +108,7 @@ public class MainController {
     private List<Collocation> collocations;
 
     private File fileForAnalysis;
-
+    private List<CollocationsTableRow> collocationsTableRows = new ArrayList<>();
 
     public void initialize() {
         loadFileMenuItem.setDisable(true);
@@ -101,8 +119,14 @@ public class MainController {
         removeRuleMenuItem.setDisable(true);
         showRulesMenuItem.setDisable(true);
         modeMenuItem.setDisable(true);
+        neuralNetworkMenuItem.setSelected(true);
+        knowledgeBaseMenuItem.setSelected(false);
+        cancelButton.setDisable(true);
+        submitButton.setDisable(true);
+
     }
     public void pressCreateProjectMenuItem() throws IOException{
+        DB.setAutoIncrement();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../forms/create_project.fxml"));
         Parent root = fxmlLoader.load();
         CreateProjectController createProjectController = fxmlLoader.getController();
@@ -154,7 +178,6 @@ public class MainController {
                     if (words.get(i).isHomonym() || words.get(i+1).isHomonym()) collocations.add(new Collocation(words.get(i), words.get(i+1)));
                 }
                 this.collocations = collocations;
-                //ОСТАНОВИЛСЯ ТУТ
             }
         }
     }
@@ -167,17 +190,19 @@ public class MainController {
         neuralNetworkMenuItem.setSelected(true);
     }
     public void pressFindCollocationsMenuItem() {
-        //for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
-        Main.getNeuralNetwork().performCalculation(collocations.get(0));
-        //long st = System.nanoTime();
-        DB.addNeuralNetworkToDB(Main.getNeuralNetwork(), Main.currentProjectId);
-        NeuralNetwork neuralNetwork = DB.getNeuralNetworkFromDB(Main.currentProjectId);
-        neuralNetwork.setFirstIteration(false);
-        neuralNetwork.performCalculation(collocations.get(0));
-        System.out.println("Результат нейронки из проги = " + Main.getNeuralNetwork().getOutput() +"; Результат нейронки из бд = " + neuralNetwork.getOutput());
+        if (neuralNetworkMenuItem.isSelected()) {
+            if (DB.isThereAnyNeuralNetworkInProject(Main.currentProjectId)) {
+                Main.setNeuralNetwork(DB.getNeuralNetworkFromDB(Main.currentProjectId));
+                Main.getNeuralNetwork().setFirstIteration(false);
+            }
+            for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
+            putResultsInTable(collocations);
+            submitButton.setDisable(false);
+            cancelButton.setDisable(false);
 
-        //System.out.println("Чтение из бд завершено - " + ((System.nanoTime()-st)*Math.pow(10, -9)));
-        //System.out.println("Запись в БД завершена - " + ((System.nanoTime()-st)*Math.pow(10, -9)) );
+        } else {
+
+        }
     }
     public void pressAddRuleMenuItem() {
 
@@ -195,10 +220,23 @@ public class MainController {
 
     }
     public void pressSubmitButton() {
+        for (int i = 0; i < collocationsTableRows.size(); i++) {
+            collocations.get(i).setCollocationReally(((ObservableList<CollocationsTableRow>) collocationsTableView.getItems()).get(i).isChoice().isSelected());
+        }
+        Main.getNeuralNetwork().performLearning(collocations);
+        DB.deleteNeuralNetworkFromDB(Main.currentProjectId);
+        DB.addNeuralNetworkToDB(Main.getNeuralNetwork(), Main.currentProjectId);
 
+        collocationsTableView.setItems(null);
+
+        cancelButton.setDisable(true);
+        submitButton.setDisable(true);
     }
     public void pressCancelButton() {
+        collocationsTableView.setItems(null);
 
+        cancelButton.setDisable(true);
+        submitButton.setDisable(true);
     }
     public void makeEverythingAvailable() {
         loadFileMenuItem.setDisable(false);
@@ -257,6 +295,43 @@ public class MainController {
     public MenuItem getAboutProgramMenuItem() {
         return aboutProgramMenuItem;
     }
+
+    public void putResultsInTable(List<Collocation> collocations) {
+        collocationsTableRows = new ArrayList<>();
+            for (Collocation collocation : collocations) {
+                String word = collocation.getFirstWord().isHomonym() ? collocation.getSecondWord().getName() : collocation.getFirstWord().getName();
+                String homonym = !collocation.getFirstWord().isHomonym() ? collocation.getSecondWord().getName() : collocation.getFirstWord().getName();
+                collocationsTableRows.add
+                        (new CollocationsTableRow(word, homonym, collocation.isCollocationByNeuralNetworkCalculation() ? "Да" : "Нет", new CheckBox()));
+            }
+
+            ObservableList<CollocationsTableRow> list = FXCollections.observableArrayList(collocationsTableRows);
+            wordColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("word"));
+            homonymColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("homonym"));
+            neuralNetworkDecisionColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("result"));
+            choiceColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, CheckBox>("choice"));
+
+
+
+        collocationsTableView.setItems(list);
+
+
+/*
+        Map<Integer, String> projects = DB.getProjectsFromDB();
+        for (Map.Entry<Integer, String> entry : projects.entrySet()) {
+            openProjectTableRows.add(new OpenProjectTableRow(entry.getKey(), entry.getValue()));
+        }
+        ObservableList<OpenProjectTableRow> list = FXCollections.observableArrayList(openProjectTableRows);
+
+        projectIdColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, Integer>("projectId"));
+        projectNameColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("projectName"));
+
+        openProjectTable.setItems(list);*/
+
+    }
+
+
+
     //_________________________________________________________________________________
 
 /*
@@ -302,7 +377,7 @@ public class MainController {
     }
     public void pressSubmitButton() {
         for (int i = 0; i < tableRows.size(); i++) {
-            collocations.get(i).setCollocationReally(((ObservableList<TableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected());
+            collocations.get(i).setCollocationReally(((ObservableList<CollocationsTableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected());
         }
 
         Main.getNeuralNetwork().performLearning(allPastCollocations);
@@ -345,15 +420,15 @@ public class MainController {
 
         for (int i = 0; i < collocations.size(); i++) {
             Collocation collocation = collocations.get(i);
-            tableRows.add(new TableRow(collocation.getFirstWord(), collocation.getSecondWord(), collocation.isCollocationByNeuralNetworkCalculation() ? "Да" : "Нет", new CheckBox()));
+            tableRows.add(new CollocationsTableRow(collocation.getFirstWord(), collocation.getSecondWord(), collocation.isCollocationByNeuralNetworkCalculation() ? "Да" : "Нет", new CheckBox()));
         }
 
-        ObservableList<TableRow> list = FXCollections.observableArrayList(tableRows);
+        ObservableList<CollocationsTableRow> list = FXCollections.observableArrayList(tableRows);
 
-        wordColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("word"));
-        homonymColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("homonym"));
-        leftRightColumn.setCellValueFactory(new PropertyValueFactory<TableRow, Boolean>("result"));
-        choiceColumn.setCellValueFactory(new PropertyValueFactory<TableRow, CheckBox>("choice"));
+        wordColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("word"));
+        homonymColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("homonym"));
+        leftRightColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, Boolean>("result"));
+        choiceColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, CheckBox>("choice"));
 
         collocationsTable.setItems(list);
     }

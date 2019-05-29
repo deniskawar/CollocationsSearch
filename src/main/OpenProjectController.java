@@ -39,8 +39,8 @@ public class OpenProjectController {
         }
         ObservableList<OpenProjectTableRow> list = FXCollections.observableArrayList(openProjectTableRows);
 
-        projectIdColumn.setCellValueFactory(new PropertyValueFactory<TableRow, Integer>("projectId"));
-        projectNameColumn.setCellValueFactory(new PropertyValueFactory<TableRow, String>("projectName"));
+        projectIdColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, Integer>("projectId"));
+        projectNameColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("projectName"));
 
         openProjectTable.setItems(list);
     }

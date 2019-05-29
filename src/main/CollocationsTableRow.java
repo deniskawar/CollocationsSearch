@@ -2,13 +2,13 @@ package main;
 
 import javafx.scene.control.CheckBox;
 
-public class TableRow {
+public class CollocationsTableRow {
     private String word;
     private String homonym;
     private String result;
     private CheckBox choice;
 
-    public TableRow(String word, String homonym, String result, CheckBox choice) {
+    public CollocationsTableRow(String word, String homonym, String result, CheckBox choice) {
         this.word = word;
         this.homonym = homonym;
         this.result = result;

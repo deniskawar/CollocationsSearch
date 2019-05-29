@@ -14,11 +14,11 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="470.0" prefWidth="783.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.MainController">
    <children>
-      <TableView fx:id="collocationsTable" layoutX="397.0" layoutY="24.0" prefHeight="374.0" prefWidth="386.0">
+      <TableView fx:id="collocationsTableView" layoutX="397.0" layoutY="24.0" prefHeight="374.0" prefWidth="386.0">
          <columns>
             <TableColumn fx:id="wordColumn" prefWidth="129.0" text="Разрешающее слово" />
             <TableColumn fx:id="homonymColumn" prefWidth="88.0" text="Омоним" />
-            <TableColumn fx:id="leftRightColumn" prefWidth="97.0" text="Коллокация" />
+            <TableColumn fx:id="neuralNetworkDecisionColumn" prefWidth="97.0" text="Решение НС" />
             <TableColumn fx:id="choiceColumn" prefWidth="71.0" text="Выбор" />
          </columns>
       </TableView>

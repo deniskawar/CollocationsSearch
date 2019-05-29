@@ -12,59 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 public class DB {
-    public static void connectToBD() {
-        /*
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-        String url = "jdbc:mysql://localhost:3306/test_base"+
-                "?verifyServerCertificate=false"+
-                "&useSSL=false"+
-                "&requireSSL=false"+
-                "&useLegacyDatetimeCode=false"+
-                "&amp"+
-                "&serverTimezone=UTC";
-        String user = "root";
-        String password = "admin";
-        String query = "select count(*) from collocations";
-        try {
-            con = DriverManager.getConnection(url, user, password);
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(query);
-
-            while (rs.next()) {
-                 int count = rs.getInt(1);
-                 System.out.println("Total number of collocations in the table : " + count);
-             }
-        } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
-        }
-        finally {
-            try {con.close();}
-            catch (SQLException se) {
-
-            }
-            try {stmt.close();}
-            catch (SQLException se) {
-
-            }
-            try {rs.close();}
-            catch (SQLException se) {
-
-            }
-        }*/
-    }
-
-    public void disconnectFromBD() {
-
-    }
-
-    public void readFromBD() {
-
-    }
-    public void writeToBD() {
-
-    }
     public static Map<Integer, String> getProjectsFromDB() {
         Map<Integer, String> projects = new HashMap<>();
 
@@ -249,75 +196,8 @@ public class DB {
             }
         }
     }
-
     public static void addNeuralNetworkToDB(NeuralNetwork neuralNetwork, int projectId) {
-        /*
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-        String url = "jdbc:mysql://localhost:3306/collocations_search" +
-                "?verifyServerCertificate=false" +
-                "&useSSL=false" +
-                "&requireSSL=false" +
-                "&useLegacyDatetimeCode=false" +
-                "&amp" +
-                "&serverTimezone=UTC" +
-                "&allowPublicKeyRetrieval=true" +
-                "&useSSL=false";
-        String user = "root";
-        String password = "admin";
 
-
-        String query = "insert into neural_network(project_id) values (?);";
-        try {
-            con = DriverManager.getConnection(url, user, password);
-            PreparedStatement preparedStatement = con.prepareStatement(query);
-            preparedStatement.setInt(1, projectId);
-            preparedStatement.execute();
-
-        // ОСТАНОВИЛСЯ ТУТ!!!!!!!!!!
-        for (int i = 0; i < neuralNetwork.getLayers().size(); i++) {
-            // добавить каждый слой
-            query = "insert into layer(layer_serial_number, neural_network_id) values (?, (select max(neural_network_id) from neural_network));";
-            //con = DriverManager.getConnection(url, user, password);
-            preparedStatement = con.prepareStatement(query);
-            preparedStatement.setInt(1, i + 1);
-            preparedStatement.execute();
-
-            for (int j = 0; j < neuralNetwork.getLayers().get(i).getNeurons().size(); j++) {
-                // добавить каждый нейрон
-                query = "insert into neuron(layer_id, output_value) values ((select max(layer_id) from layer), ?);";
-                //con = DriverManager.getConnection(url, user, password);
-                preparedStatement = con.prepareStatement(query);
-                preparedStatement.setDouble(1, neuralNetwork.getLayers().get(i).getNeurons().get(j).getOutputValue());
-                preparedStatement.execute();
-
-                for (int k = 0; k < neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().size(); k++) {
-                    query = "insert into synapse(weight) values (?);";
-                    //con = DriverManager.getConnection(url, user, password);
-                    preparedStatement = con.prepareStatement(query);
-                    preparedStatement.setDouble(1, neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().get(k).getWeight());
-                    preparedStatement.execute();
-
-                    query = "insert into synapse_neuron(synapse_id, neuron_id) values ((select max(synapse_id) from synapse),(select max(neuron_id) from neuron));";
-                    //con = DriverManager.getConnection(url, user, password);
-                    preparedStatement = con.prepareStatement(query);
-                    preparedStatement.execute();
-                    // добавить каждый синапс и связать с одним нейроном
-                }
-            }
-        }
-    }
-        catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
-        }
-        finally {
-            try {con.close();}
-            catch (SQLException se) {
-
-            }
-        }
-        */
         boolean firstIteration = true;
         Connection con = null;
         Statement stmt = null;
@@ -333,9 +213,6 @@ public class DB {
                 "&useSSL=false";
         String user = "root";
         String password = "admin";
-
-
-
 
         int neuralNetworkMaxId = 0;
         int layerMaxId = 0;
@@ -374,18 +251,9 @@ public class DB {
 
         }
 
-
-
-
-        //String query;
         try {
-
-            // ЗАКОНЧИЛ ЗДЕСЬ, ВСЕ MAX ID РАБОТАЮТ НАДО СДЕЛАТЬ BATCH ЗАПРОСЫ, ДЛЯ ЭТОГО НАДО КАЖДЫЙ ID КАЖДЫЙ РАЗ В СВОЕМ МЕСТЕ ПРИБАВЛЯТЬ
-
-
             neuralNetworkPreparedStatement.setInt(1, projectId);
             neuralNetworkPreparedStatement.addBatch();
-            //neuralNetworkPreparedStatement.execute();
             if (firstIteration) {
                 neuralNetworkPreparedStatement.executeBatch();
                 neuralNetworkPreparedStatement.clearBatch();
@@ -399,15 +267,10 @@ public class DB {
             }
 
             for (int i = 0; i < neuralNetwork.getLayers().size(); i++) {
-                // добавить каждый слой
-                //query = "insert into layer(layer_serial_number, neural_network_id) values (?, ?);";
-
-                //con = DriverManager.getConnection(url, user, password);
 
                 layerPreparedStatement.setInt(1, i + 1);
                 layerPreparedStatement.setInt(2, neuralNetworkMaxId);
                 layerPreparedStatement.addBatch();
-                //layerPreparedStatement.execute();
                 if (firstIteration) {
                     layerPreparedStatement.executeBatch();
                     layerPreparedStatement.clearBatch();
@@ -422,13 +285,10 @@ public class DB {
                 }
 
                 for (int j = 0; j < neuralNetwork.getLayers().get(i).getNeurons().size(); j++) {
-                    // добавить каждый нейрон
-                    //query = "insert into neuron(layer_id, output_value) values (?, ?);";
-                    //con = DriverManager.getConnection(url, user, password);
+
                     neuronPreparedStatement.setInt(1, layerMaxId);
                     neuronPreparedStatement.setDouble(2, neuralNetwork.getLayers().get(i).getNeurons().get(j).getOutputValue());
                     neuronPreparedStatement.addBatch();
-                    //neuronPreparedStatement.execute();
                     if (firstIteration) {
                         neuronPreparedStatement.executeBatch();
                         neuronPreparedStatement.clearBatch();
@@ -443,11 +303,9 @@ public class DB {
                     }
 
                     for (int k = 0; k < neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().size(); k++) {
-                        //query = "insert into synapse(weight) values (?);";
-                        //con = DriverManager.getConnection(url, user, password);
+
                         synapsePreparedStatement.setDouble(1, neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().get(k).getWeight());
                         synapsePreparedStatement.addBatch();
-                        //synapsePreparedStatement.execute();
                         if (firstIteration) {
                             synapsePreparedStatement.executeBatch();
                             synapsePreparedStatement.clearBatch();
@@ -461,13 +319,9 @@ public class DB {
                             synapseMaxId++;
                         }
 
-                        //query = "insert into synapse_neuron(synapse_id, neuron_id) values ((select max(synapse_id) from synapse),(select max(neuron_id) from neuron));";
-                        //con = DriverManager.getConnection(url, user, password);
                         synapseNeuronPreparedStatement.setInt(1, synapseMaxId);
                         synapseNeuronPreparedStatement.setInt(2, neuronMaxId);
                         synapseNeuronPreparedStatement.addBatch();
-                        //synapseNeuronPreparedStatement.execute();
-                        // добавить каждый синапс и связать с одним нейроном
                         firstIteration = false;
                     }
                 }
@@ -502,7 +356,6 @@ public class DB {
             }
         }
     }
-
     public static NeuralNetwork getNeuralNetworkFromDB(int projectId) {
 
         Connection con = null;
@@ -624,4 +477,147 @@ public class DB {
 
         return neuralNetwork;
     }
+    public static boolean isThereAnyNeuralNetworkInProject(int projectId) {
+
+        Connection con = null;
+        ResultSet resultSet = null;
+        String url = "jdbc:mysql://localhost:3306/collocations_search"+
+                "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+
+        String query = "select COUNT(neural_network_id) from neural_network where project_id = ?";
+        PreparedStatement preparedStatement;
+
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1, projectId);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int neuralNetworkCount = resultSet.getInt("COUNT(neural_network_id)");
+            return (neuralNetworkCount > 0);
+        }
+        catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException se) {
+
+            }
+        }
+        return false;
+    }
+    public static void deleteNeuralNetworkFromDB(int projectId) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        String url = "jdbc:mysql://localhost:3306/collocations_search"+
+                "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+        String query = "delete from neural_network where project_id = ?;";
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1, projectId);
+            preparedStatement.execute();
+
+            query = "delete from synapse where synapse_id not in (select synapse_id from synapse_neuron)";
+            preparedStatement = con.prepareStatement(query);
+            preparedStatement.execute();
+
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+        }
+    }
+    public static void setAutoIncrement() {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        String url = "jdbc:mysql://localhost:3306/collocations_search"+
+                "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+        String query = "SELECT COUNT(project_id) from project;";
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            preparedStatement = con.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int projectsCount = resultSet.getInt("COUNT(project_id)");
+            if (projectsCount == 0) {
+                query = "ALTER TABLE project AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE neural_network AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE neuron AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE synapse AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE synapse_neuron AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE layer AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE characteristic AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE decision_word AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE homonym AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+                query = "ALTER TABLE rule_collocation AUTO_INCREMENT = 1;";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.execute();
+            }
+
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+        }
+
+    }
+
 }
