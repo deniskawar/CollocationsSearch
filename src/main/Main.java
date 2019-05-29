@@ -11,17 +11,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Main extends Application {
-    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(2);
+    private static final NeuralNetwork neuralNetwork = new NeuralNetwork(3);
     private static final Map<String,Integer> characteristicsInfo = new LinkedHashMap<String, Integer>(){
         {
             put("Часть речи", 8);
             put("Падеж", 7);
             put("Число", 3);
             put("Род", 4);
-            //put("Время", 4);
-            //put("Залог", 3);
-            //put("Тип местоимения", 10);
-            //put("Наклонение", 4);
+            put("Время", 4);
+            put("Залог", 3);
+            put("Тип местоимения", 10);
+            put("Наклонение", 4);
 
         }
     };

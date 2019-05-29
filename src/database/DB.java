@@ -315,6 +315,7 @@ public class DB {
             }
         }
         */
+        boolean firstIteration = true;
         Connection con = null;
         Statement stmt = null;
         ResultSet rs = null;
@@ -330,11 +331,7 @@ public class DB {
         String user = "root";
         String password = "admin";
 
-        String neuralNetworkQuery = "insert into neural_network(project_id) values (?);";
-        String layerQuery = "insert into layer(layer_serial_number, neural_network_id) values (?, (select max(neural_network_id) from neural_network));";
-        String neuronQuery = "insert into neuron(layer_id, output_value) values ((select max(layer_id) from layer), ?);";
-        String synapseQuery = "insert into synapse(weight) values (?);";
-        String synapseNeuronQuery = "insert into synapse_neuron(synapse_id, neuron_id) values ((select max(synapse_id) from synapse),(select max(neuron_id) from neuron));";
+
 
 
         int neuralNetworkMaxId = 0;
@@ -348,70 +345,140 @@ public class DB {
         String neuronMaxIdQuery = "select max(neuron_id) from neuron";
         String synapseMaxIdQuery = "select max(synapse_id) from synapse";
 
-        String query;
+        String neuralNetworkQuery = "insert into neural_network(project_id) values (?);";
+        String layerQuery = "insert into layer(layer_serial_number, neural_network_id) values (?, ?);";
+        String neuronQuery = "insert into neuron(layer_id, output_value) values (?, ?);";
+        String synapseQuery = "insert into synapse(weight) values (?);";
+        String synapseNeuronQuery = "insert into synapse_neuron(synapse_id, neuron_id) values (?, ?);";
+
+        PreparedStatement neuralNetworkPreparedStatement = null;
+        PreparedStatement layerPreparedStatement = null;
+        PreparedStatement neuronPreparedStatement = null;
+        PreparedStatement synapsePreparedStatement = null;
+        PreparedStatement synapseNeuronPreparedStatement = null;
+
         try {
             con = DriverManager.getConnection(url, user, password);
+            con.setAutoCommit(false);
 
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(neuralNetworkMaxIdQuery);
-            rs.next();
-            neuralNetworkMaxId = rs.getInt("max(neural_network_id)");
+            neuralNetworkPreparedStatement = con.prepareStatement(neuralNetworkQuery);
+            layerPreparedStatement = con.prepareStatement(layerQuery);
+            neuronPreparedStatement = con.prepareStatement(neuronQuery);
+            synapsePreparedStatement = con.prepareStatement(synapseQuery);
+            synapseNeuronPreparedStatement = con.prepareStatement(synapseNeuronQuery);
+        }
+        catch (SQLException ex) {
 
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(layerMaxIdQuery);
-            rs.next();
-            layerMaxId = rs.getInt("max(layer_id)");
+        }
 
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(neuronMaxIdQuery);
-            rs.next();
-            neuronMaxId = rs.getInt("max(neuron_id)");
 
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(synapseMaxIdQuery);
-            rs.next();
-            synapseMaxId = rs.getInt("max(synapse_id)");
+
+
+        //String query;
+        try {
 
             // ЗАКОНЧИЛ ЗДЕСЬ, ВСЕ MAX ID РАБОТАЮТ НАДО СДЕЛАТЬ BATCH ЗАПРОСЫ, ДЛЯ ЭТОГО НАДО КАЖДЫЙ ID КАЖДЫЙ РАЗ В СВОЕМ МЕСТЕ ПРИБАВЛЯТЬ
 
-            query = "insert into neural_network(project_id) values (?);";
 
-            PreparedStatement preparedStatement = con.prepareStatement(query);
-            preparedStatement.setInt(1, projectId);
-            preparedStatement.execute();
+            neuralNetworkPreparedStatement.setInt(1, projectId);
+            neuralNetworkPreparedStatement.addBatch();
+            //neuralNetworkPreparedStatement.execute();
+            if (firstIteration) {
+                neuralNetworkPreparedStatement.executeBatch();
+                neuralNetworkPreparedStatement.clearBatch();
 
+                stmt = con.createStatement();
+                rs = stmt.executeQuery(neuralNetworkMaxIdQuery);
+                rs.next();
+                neuralNetworkMaxId = rs.getInt("max(neural_network_id)");
+            } else {
+                neuralNetworkMaxId++;
+            }
 
             for (int i = 0; i < neuralNetwork.getLayers().size(); i++) {
                 // добавить каждый слой
-                query = "insert into layer(layer_serial_number, neural_network_id) values (?, (select max(neural_network_id) from neural_network));";
+                //query = "insert into layer(layer_serial_number, neural_network_id) values (?, ?);";
+
                 //con = DriverManager.getConnection(url, user, password);
-                preparedStatement = con.prepareStatement(query);
-                preparedStatement.setInt(1, i + 1);
-                preparedStatement.execute();
+
+                layerPreparedStatement.setInt(1, i + 1);
+                layerPreparedStatement.setInt(2, neuralNetworkMaxId);
+                layerPreparedStatement.addBatch();
+                //layerPreparedStatement.execute();
+                if (firstIteration) {
+                    layerPreparedStatement.executeBatch();
+                    layerPreparedStatement.clearBatch();
+
+                    stmt = con.createStatement();
+                    rs = stmt.executeQuery(layerMaxIdQuery);
+                    rs.next();
+                    layerMaxId = rs.getInt("max(layer_id)");
+                }
+                else {
+                    layerMaxId++;
+                }
 
                 for (int j = 0; j < neuralNetwork.getLayers().get(i).getNeurons().size(); j++) {
                     // добавить каждый нейрон
-                    query = "insert into neuron(layer_id, output_value) values ((select max(layer_id) from layer), ?);";
+                    //query = "insert into neuron(layer_id, output_value) values (?, ?);";
                     //con = DriverManager.getConnection(url, user, password);
-                    preparedStatement = con.prepareStatement(query);
-                    preparedStatement.setDouble(1, neuralNetwork.getLayers().get(i).getNeurons().get(j).getOutputValue());
-                    preparedStatement.execute();
+                    neuronPreparedStatement.setInt(1, layerMaxId);
+                    neuronPreparedStatement.setDouble(2, neuralNetwork.getLayers().get(i).getNeurons().get(j).getOutputValue());
+                    neuronPreparedStatement.addBatch();
+                    //neuronPreparedStatement.execute();
+                    if (firstIteration) {
+                        neuronPreparedStatement.executeBatch();
+                        neuronPreparedStatement.clearBatch();
+
+                        stmt = con.createStatement();
+                        rs = stmt.executeQuery(neuronMaxIdQuery);
+                        rs.next();
+                        neuronMaxId = rs.getInt("max(neuron_id)");
+                    }
+                    else {
+                        neuronMaxId++;
+                    }
 
                     for (int k = 0; k < neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().size(); k++) {
-                        query = "insert into synapse(weight) values (?);";
+                        //query = "insert into synapse(weight) values (?);";
                         //con = DriverManager.getConnection(url, user, password);
-                        preparedStatement = con.prepareStatement(query);
-                        preparedStatement.setDouble(1, neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().get(k).getWeight());
-                        preparedStatement.execute();
+                        synapsePreparedStatement.setDouble(1, neuralNetwork.getLayers().get(i).getNeurons().get(j).getInputSynapses().get(k).getWeight());
+                        synapsePreparedStatement.addBatch();
+                        //synapsePreparedStatement.execute();
+                        if (firstIteration) {
+                            synapsePreparedStatement.executeBatch();
+                            synapsePreparedStatement.clearBatch();
 
-                        query = "insert into synapse_neuron(synapse_id, neuron_id) values ((select max(synapse_id) from synapse),(select max(neuron_id) from neuron));";
+                            stmt = con.createStatement();
+                            rs = stmt.executeQuery(synapseMaxIdQuery);
+                            rs.next();
+                            synapseMaxId = rs.getInt("max(synapse_id)");
+                        }
+                        else {
+                            synapseMaxId++;
+                        }
+
+                        //query = "insert into synapse_neuron(synapse_id, neuron_id) values ((select max(synapse_id) from synapse),(select max(neuron_id) from neuron));";
                         //con = DriverManager.getConnection(url, user, password);
-                        preparedStatement = con.prepareStatement(query);
-                        preparedStatement.execute();
+                        synapseNeuronPreparedStatement.setInt(1, synapseMaxId);
+                        synapseNeuronPreparedStatement.setInt(2, neuronMaxId);
+                        synapseNeuronPreparedStatement.addBatch();
+                        //synapseNeuronPreparedStatement.execute();
                         // добавить каждый синапс и связать с одним нейроном
+                        firstIteration = false;
                     }
                 }
             }
+            neuralNetworkPreparedStatement.executeBatch();
+            con.commit();
+            layerPreparedStatement.executeBatch();
+            con.commit();
+            neuronPreparedStatement.executeBatch();
+            con.commit();
+            synapsePreparedStatement.executeBatch();
+            con.commit();
+            synapseNeuronPreparedStatement.executeBatch();
+            con.commit();
         }
         catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
@@ -431,7 +498,10 @@ public class DB {
 
             }
         }
+    }
 
-
+    public static NeuralNetwork getNeuralNetworkFromDB() {
+        NeuralNetwork neuralNetwork = new NeuralNetwork(3);
+        return neuralNetwork;
     }
 }
