@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import neuralNetwork.NeuralNetwork;
 import words.Collocation;
 import words.Decoder;
 import words.Word;
@@ -166,10 +167,17 @@ public class MainController {
         neuralNetworkMenuItem.setSelected(true);
     }
     public void pressFindCollocationsMenuItem() {
-        for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
-        long st = System.nanoTime();
+        //for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
+        Main.getNeuralNetwork().performCalculation(collocations.get(0));
+        //long st = System.nanoTime();
         DB.addNeuralNetworkToDB(Main.getNeuralNetwork(), Main.currentProjectId);
-        System.out.println("Запись в БД завершена - " + ((System.nanoTime()-st)*Math.pow(10, -9)) );
+        NeuralNetwork neuralNetwork = DB.getNeuralNetworkFromDB(Main.currentProjectId);
+        neuralNetwork.setFirstIteration(false);
+        neuralNetwork.performCalculation(collocations.get(0));
+        System.out.println("Результат нейронки из проги = " + Main.getNeuralNetwork().getOutput() +"; Результат нейронки из бд = " + neuralNetwork.getOutput());
+
+        //System.out.println("Чтение из бд завершено - " + ((System.nanoTime()-st)*Math.pow(10, -9)));
+        //System.out.println("Запись в БД завершена - " + ((System.nanoTime()-st)*Math.pow(10, -9)) );
     }
     public void pressAddRuleMenuItem() {
 

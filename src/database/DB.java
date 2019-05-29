@@ -1,6 +1,9 @@
 package database;
 
+import neuralNetwork.Layer;
 import neuralNetwork.NeuralNetwork;
+import neuralNetwork.Neuron;
+import neuralNetwork.Synapse;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -500,8 +503,125 @@ public class DB {
         }
     }
 
-    public static NeuralNetwork getNeuralNetworkFromDB() {
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3);
+    public static NeuralNetwork getNeuralNetworkFromDB(int projectId) {
+
+        Connection con = null;
+
+        ResultSet neuralNetworkResultSet = null;
+        ResultSet layerResultSet = null;
+        ResultSet neuronResultSet = null;
+        ResultSet synapseResultSet = null;
+        ResultSet synapseNeuronResultSet = null;
+
+
+        String url = "jdbc:mysql://localhost:3306/collocations_search"+
+                "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+
+        String neuralNetworkQuery = "select neural_network_id from neural_network where project_id = ?";
+
+        PreparedStatement neuralNetworkPreparedStatement = null;
+        PreparedStatement layerPreparedStatement = null;
+        PreparedStatement neuronPreparedStatement = null;
+        PreparedStatement synapsePreparedStatement = null;
+        PreparedStatement synapseNeuronPreparedStatement = null;
+
+        int neuralNetworkId = 0;
+
+        List<Layer> layers = new ArrayList<>();
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            neuralNetworkPreparedStatement = con.prepareStatement(neuralNetworkQuery);
+            neuralNetworkPreparedStatement.setInt(1, projectId);
+            neuralNetworkResultSet = neuralNetworkPreparedStatement.executeQuery();
+            neuralNetworkResultSet.next();
+            neuralNetworkId = neuralNetworkResultSet.getInt("neural_network_id");
+
+            layerPreparedStatement = con.prepareStatement("select * from layer where neural_network_id = ? ORDER BY layer_id");
+            layerPreparedStatement.setInt(1, neuralNetworkId);
+            layerResultSet = layerPreparedStatement.executeQuery();
+
+            while (layerResultSet.next()) {
+                int layerId = layerResultSet.getInt("layer_id");
+                Layer layer = new Layer();
+                List<Neuron> neurons = new ArrayList<>();
+
+                neuronPreparedStatement = con.prepareStatement("select * from neuron where layer_id = ? ORDER BY neuron_id");
+                neuronPreparedStatement.setInt(1, layerId);
+                neuronResultSet = neuronPreparedStatement.executeQuery();
+
+                while (neuronResultSet.next()) {
+                    int neuronId = neuronResultSet.getInt("neuron_id");
+                    Neuron neuron = new Neuron();
+                    neuron.setOutputValue(neuronResultSet.getDouble("output_value"));
+                    List<Synapse> inputSynapses = new ArrayList<>();
+
+
+                    synapseNeuronPreparedStatement = con.prepareStatement("select synapse_id from synapse_neuron where neuron_id = ? ORDER BY synapse_id");
+                    synapseNeuronPreparedStatement.setInt(1, neuronId);
+                    synapseNeuronResultSet = synapseNeuronPreparedStatement.executeQuery();
+
+                    while (synapseNeuronResultSet.next()) {
+                        int synapseId = synapseNeuronResultSet.getInt("synapse_id");
+
+                        synapsePreparedStatement = con.prepareStatement("select weight from synapse where synapse_id = ?");
+                        synapsePreparedStatement.setInt(1, synapseId);
+                        synapseResultSet = synapsePreparedStatement.executeQuery();
+
+                        while (synapseResultSet.next()) {
+                            double weight = synapseResultSet.getDouble("weight");
+                            Synapse synapse = new Synapse(weight);
+                            inputSynapses.add(synapse);
+                        }
+
+                    }
+                    neuron.setInputSynapses(inputSynapses);
+                    neurons.add(neuron);
+                }
+                layer.setNeurons(neurons);
+                layers.add(layer);
+            }
+
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        } finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+            try {neuralNetworkResultSet.close();}
+            catch (SQLException se) {
+
+            }
+            try {layerResultSet.close();}
+            catch (SQLException se) {
+
+            }
+            try {neuronResultSet.close();}
+            catch (SQLException se) {
+
+            }
+            try {synapseNeuronResultSet.close();}
+            catch (SQLException se) {
+
+            }
+            try {synapseResultSet.close();}
+            catch (SQLException se) {
+
+            }
+        }
+        NeuralNetwork neuralNetwork = new NeuralNetwork(layers.size());
+        neuralNetwork.setLayers(layers);
+
         return neuralNetwork;
     }
 }

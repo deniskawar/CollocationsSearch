@@ -168,7 +168,7 @@ public class NeuralNetwork {
         for (Map.Entry<String, Integer> entry : Main.getCharacteristicsInfo().entrySet()) {
             inputAmount += entry.getValue() + 1;
         }
-        inputAmount *= (collocation.getFirstWord().getCharacteristics().size() + collocation.getSecondWord().getCharacteristics().size());
+        inputAmount *= 3/*(collocation.getFirstWord().getCharacteristics().size() + collocation.getSecondWord().getCharacteristics().size())*/;
         input = new int[inputAmount];
         for (int i = 0; i < input.length; i++) {
             input[i] = 0;
