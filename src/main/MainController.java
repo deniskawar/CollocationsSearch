@@ -13,16 +13,11 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import neuralNetwork.NeuralNetwork;
-import words.Collocation;
-import words.Decoder;
-import words.Rule;
-import words.Word;
+import words.*;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class MainController {
@@ -30,7 +25,7 @@ public class MainController {
     private File inputFile;
     private File originalTextFile;
     private List<CollocationsTableRow> tableRows = new ArrayList<>();
-    private List<Collocation> collocations;
+    private List<Collocation> collocationsFromFile;
     private List<Collocation> allPastCollocations = new ArrayList<>();
     */
 
@@ -109,7 +104,7 @@ public class MainController {
     private static int showRulesWindowWidth = 761;
     private static int showRulesWindowHeight = 277;
 
-    private List<Collocation> collocations;
+    private List<Collocation> collocationsFromFile;
 
     private File fileForAnalysis;
     private List<CollocationsTableRow> collocationsTableRows = new ArrayList<>();
@@ -179,7 +174,7 @@ public class MainController {
                 for (int i = 0; i < words.size()-1; i++) {
                     if (words.get(i).isHomonym() || words.get(i+1).isHomonym()) collocations.add(new Collocation(words.get(i), words.get(i+1)));
                 }
-                this.collocations = collocations;
+                this.collocationsFromFile = collocations;
             }
         }
     }
@@ -192,19 +187,67 @@ public class MainController {
         neuralNetworkMenuItem.setSelected(true);
     }
     public void pressFindCollocationsMenuItem() {
+        modeMenuItem.setDisable(true);
         if (neuralNetworkMenuItem.isSelected()) {
             if (DB.isThereAnyNeuralNetworkInProject(Main.currentProjectId)) {
                 Main.setNeuralNetwork(DB.getNeuralNetworkFromDB(Main.currentProjectId));
                 Main.getNeuralNetwork().setFirstIteration(false);
             }
-            for (Collocation collocation : collocations) Main.getNeuralNetwork().performCalculation(collocation);
-            putResultsInTable(collocations);
-            submitButton.setDisable(false);
-            cancelButton.setDisable(false);
+            for (Collocation collocation : collocationsFromFile) Main.getNeuralNetwork().performCalculation(collocation);
+            putNeuralNetworkSearchResultsInTable(collocationsFromFile);
 
         } else {
+            List<Rule> rules = DB.getRulesFromDB(Main.currentProjectId);
+            for (Collocation collocation : collocationsFromFile) {
+                for (Rule rule : rules) {
+                    if (rule.isHomonymLeft() == collocation.getFirstWord().isHomonym()) {
+                        boolean isCollocationByKnowledgeBase1 = true;
+                        boolean isCollocationByKnowledgeBase2 = true;
+                        if (rule.isHomonymLeft()) {
+                            for (int i = 0; i < collocation.getFirstWord().getCharacteristics().get(0).size(); i++) {
+                                if (rule.getFirstWordCharacteristics().get(i).getValue() != 0) {
+                                    isCollocationByKnowledgeBase1 = isCollocationByKnowledgeBase1 && rule.getFirstWordCharacteristics().get(i).getValue() == collocation.getFirstWord().getCharacteristics().get(0).get(i).getValue();
+                                    isCollocationByKnowledgeBase2 = isCollocationByKnowledgeBase2 && rule.getFirstWordCharacteristics().get(i).getValue() == collocation.getFirstWord().getCharacteristics().get(1).get(i).getValue();
+                                }
+                                if (rule.getSecondWordCharacteristics().get(i).getValue() != 0) {
+                                    isCollocationByKnowledgeBase1 = isCollocationByKnowledgeBase1 && rule.getSecondWordCharacteristics().get(i).getValue() == collocation.getSecondWord().getCharacteristics().get(0).get(i).getValue();
+                                    isCollocationByKnowledgeBase2 = isCollocationByKnowledgeBase2 && rule.getSecondWordCharacteristics().get(i).getValue() == collocation.getSecondWord().getCharacteristics().get(0).get(i).getValue();
+                                }
+                                if (rule.getAlternativeCharacteristics().get(i).getValue() != 0) {
+                                    isCollocationByKnowledgeBase1 = isCollocationByKnowledgeBase1 && rule.getAlternativeCharacteristics().get(i).getValue() == collocation.getFirstWord().getCharacteristics().get(1).get(i).getValue();
+                                    isCollocationByKnowledgeBase2 = isCollocationByKnowledgeBase2 && rule.getAlternativeCharacteristics().get(i).getValue() == collocation.getFirstWord().getCharacteristics().get(0).get(i).getValue();
+                                }
+                            }
+
+                        }
+                        else {
+                            for (int i = 0; i < collocation.getFirstWord().getCharacteristics().get(0).size(); i++) {
+                                if (rule.getFirstWordCharacteristics().get(i).getValue() != 0) {
+                                    isCollocationByKnowledgeBase1 = isCollocationByKnowledgeBase1 && rule.getFirstWordCharacteristics().get(i).getValue() == collocation.getFirstWord().getCharacteristics().get(0).get(i).getValue();
+                                    isCollocationByKnowledgeBase2 = isCollocationByKnowledgeBase2 && rule.getFirstWordCharacteristics().get(i).getValue() == collocation.getFirstWord().getCharacteristics().get(0).get(i).getValue();
+                                }
+                                if (rule.getSecondWordCharacteristics().get(i).getValue() != 0) {
+                                    isCollocationByKnowledgeBase1 = isCollocationByKnowledgeBase1 && rule.getSecondWordCharacteristics().get(i).getValue() == collocation.getSecondWord().getCharacteristics().get(0).get(i).getValue();
+                                    isCollocationByKnowledgeBase2 = isCollocationByKnowledgeBase2 && rule.getSecondWordCharacteristics().get(i).getValue() == collocation.getSecondWord().getCharacteristics().get(1).get(i).getValue();
+                                }
+                                if (rule.getAlternativeCharacteristics().get(i).getValue() != 0) {
+                                    isCollocationByKnowledgeBase1 = isCollocationByKnowledgeBase1 && rule.getAlternativeCharacteristics().get(i).getValue() == collocation.getSecondWord().getCharacteristics().get(1).get(i).getValue();
+                                    isCollocationByKnowledgeBase2 = isCollocationByKnowledgeBase2 && rule.getAlternativeCharacteristics().get(i).getValue() == collocation.getSecondWord().getCharacteristics().get(0).get(i).getValue();
+                                }
+                            }
+                        }
+                        if (isCollocationByKnowledgeBase1 || isCollocationByKnowledgeBase2) {
+                            collocation.setCollocationByKnowledgeBase(true);
+                            collocation.setRuleId(rule.getRuleId());
+                        }
+                    }
+                }
+                putKnowledgeBaseSearchResultsInTable(collocationsFromFile);
+            }
 
         }
+        submitButton.setDisable(false);
+        cancelButton.setDisable(false);
     }
     public void pressAddRuleMenuItem() throws IOException{
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../forms/add_rule.fxml"));
@@ -238,22 +281,54 @@ public class MainController {
     }
     public void pressSubmitButton() {
         for (int i = 0; i < collocationsTableRows.size(); i++) {
-            collocations.get(i).setCollocationReally(((ObservableList<CollocationsTableRow>) collocationsTableView.getItems()).get(i).isChoice().isSelected());
+            collocationsFromFile.get(i).setCollocationReally(((ObservableList<CollocationsTableRow>) collocationsTableView.getItems()).get(i).isChoice().isSelected());
         }
-        Main.getNeuralNetwork().performLearning(collocations);
-        DB.deleteNeuralNetworkFromDB(Main.currentProjectId);
-        DB.addNeuralNetworkToDB(Main.getNeuralNetwork(), Main.currentProjectId);
+        List<Collocation> collocationsFromDB = DB.getCollocationsFromDB(Main.currentProjectId);
+        if (neuralNetworkMenuItem.isSelected()) {
+            List<Collocation> collocationsForLearning = new ArrayList<>();
+            for (Collocation collocation : collocationsFromFile) collocationsForLearning.add(collocation);
+            for (Collocation collocation1 : collocationsFromDB) {
+                boolean areCollocationsEquals = false;
+                for (Collocation collocation2 : collocationsFromFile) {
+                    if ((collocation1.getFirstWord().getName().toLowerCase().equals(collocation2.getFirstWord().getName().toLowerCase()))
+                            && (collocation1.getSecondWord().getName().toLowerCase().equals(collocation2.getSecondWord().getName().toLowerCase())))
+                        areCollocationsEquals = true;
+                }
+                if (!areCollocationsEquals) collocationsForLearning.add(collocation1);
+            }
+
+            Main.getNeuralNetwork().performLearning(collocationsForLearning);
+            DB.deleteNeuralNetworkFromDB(Main.currentProjectId);
+            DB.addNeuralNetworkToDB(Main.getNeuralNetwork(), Main.currentProjectId);
+        }
+
+        List<Collocation> collocationsForAdding = new ArrayList<>();
+        for (Collocation collocationFromFile : collocationsFromFile) {
+            boolean areCollocationForAdding = false;
+            if (collocationFromFile.isCollocationReally()) {
+                areCollocationForAdding = true;
+                for (Collocation collocationFromDB : collocationsFromDB) {
+                    if (((collocationFromFile.getFirstWord().getName().toLowerCase().equals(collocationFromDB.getFirstWord().getName().toLowerCase()))
+                            && (collocationFromFile.getSecondWord().getName().toLowerCase().equals(collocationFromDB.getSecondWord().getName().toLowerCase()))))
+                        areCollocationForAdding = false;
+                }
+            }
+            if (areCollocationForAdding) collocationsForAdding.add(collocationFromFile);
+        }
+        DB.addCollocationsToDB(collocationsForAdding, Main.currentProjectId);
 
         collocationsTableView.setItems(null);
 
         cancelButton.setDisable(true);
         submitButton.setDisable(true);
+        modeMenuItem.setDisable(false);
     }
     public void pressCancelButton() {
         collocationsTableView.setItems(null);
 
         cancelButton.setDisable(true);
         submitButton.setDisable(true);
+        modeMenuItem.setDisable(false);
     }
     public void makeEverythingAvailable() {
         loadFileMenuItem.setDisable(false);
@@ -309,7 +384,8 @@ public class MainController {
         return aboutProgramMenuItem;
     }
 
-    public void putResultsInTable(List<Collocation> collocations) {
+    public void putNeuralNetworkSearchResultsInTable(List<Collocation> collocations) {
+        neuralNetworkDecisionColumn.setText("Решение НС");
         collocationsTableRows = new ArrayList<>();
             for (Collocation collocation : collocations) {
                 String word = collocation.getFirstWord().isHomonym() ? collocation.getSecondWord().getName() : collocation.getFirstWord().getName();
@@ -327,20 +403,28 @@ public class MainController {
 
 
         collocationsTableView.setItems(list);
-
-
-/*
-        Map<Integer, String> projects = DB.getProjectsFromDB();
-        for (Map.Entry<Integer, String> entry : projects.entrySet()) {
-            openProjectTableRows.add(new OpenProjectTableRow(entry.getKey(), entry.getValue()));
+    }
+    public void putKnowledgeBaseSearchResultsInTable(List<Collocation> collocations) {
+        collocationsTableRows = new ArrayList<>();
+        neuralNetworkDecisionColumn.setText("№ Правила");
+        for (Collocation collocation : collocations) {
+            if (collocation.isCollocationByKnowledgeBase()) {
+                String word = collocation.getFirstWord().isHomonym() ? collocation.getSecondWord().getName() : collocation.getFirstWord().getName();
+                String homonym = !collocation.getFirstWord().isHomonym() ? collocation.getSecondWord().getName() : collocation.getFirstWord().getName();
+                collocationsTableRows.add
+                        (new CollocationsTableRow(word, homonym, String.valueOf(collocation.getRuleId()), new CheckBox()));
+            }
         }
-        ObservableList<OpenProjectTableRow> list = FXCollections.observableArrayList(openProjectTableRows);
 
-        projectIdColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, Integer>("projectId"));
-        projectNameColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("projectName"));
+        ObservableList<CollocationsTableRow> list = FXCollections.observableArrayList(collocationsTableRows);
+        wordColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("word"));
+        homonymColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("homonym"));
+        neuralNetworkDecisionColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, String>("result"));
+        choiceColumn.setCellValueFactory(new PropertyValueFactory<CollocationsTableRow, CheckBox>("choice"));
 
-        openProjectTable.setItems(list);*/
 
+
+        collocationsTableView.setItems(list);
     }
 
 
@@ -390,7 +474,7 @@ public class MainController {
     }
     public void pressSubmitButton() {
         for (int i = 0; i < tableRows.size(); i++) {
-            collocations.get(i).setCollocationReally(((ObservableList<CollocationsTableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected());
+            collocationsFromFile.get(i).setCollocationReally(((ObservableList<CollocationsTableRow>) collocationsTable.getItems()).get(i).isChoice().isSelected());
         }
 
         Main.getNeuralNetwork().performLearning(allPastCollocations);
@@ -418,21 +502,21 @@ public class MainController {
     }
     public void findCollocations() {
         Decoder decoder = new Decoder(Main.getCharacteristicsInfo());
-        collocations = decoder.decodeInputFileToArray(inputFile);
+        collocationsFromFile = decoder.decodeInputFileToArray(inputFile);
 
-        allPastCollocations.addAll(collocations);
+        allPastCollocations.addAll(collocationsFromFile);
 
-        for (int i = 0; i < collocations.size(); i++) {
-            Main.getNeuralNetwork().performCalculation(collocations.get(i));
+        for (int i = 0; i < collocationsFromFile.size(); i++) {
+            Main.getNeuralNetwork().performCalculation(collocationsFromFile.get(i));
         }
 
-        refreshTable(collocations);
+        refreshTable(collocationsFromFile);
 
     }
-    public void refreshTable(List<Collocation> collocations) {
+    public void refreshTable(List<Collocation> collocationsFromFile) {
 
-        for (int i = 0; i < collocations.size(); i++) {
-            Collocation collocation = collocations.get(i);
+        for (int i = 0; i < collocationsFromFile.size(); i++) {
+            Collocation collocation = collocationsFromFile.get(i);
             tableRows.add(new CollocationsTableRow(collocation.getFirstWord(), collocation.getSecondWord(), collocation.isCollocationByNeuralNetworkCalculation() ? "Да" : "Нет", new CheckBox()));
         }
 
@@ -664,7 +748,7 @@ public class MainController {
                 "&serverTimezone=UTC";
         String user = "root";
         String password = "admin";
-        String query = " insert into collocations (collocations_id, collocation) " +
+        String query = " insert into collocationsFromFile (collocations_id, collocation) " +
                 "values (?, ?)";
         try {
             PreparedStatement preparedStatement = con.prepareStatement(query);
@@ -704,7 +788,7 @@ public class MainController {
                 "&serverTimezone=UTC";
         String user = "root";
         String password = "admin";
-        String query = "delete from collocations where id = ?";
+        String query = "delete from collocationsFromFile where id = ?";
         try {
             con = DriverManager.getConnection(url, user, password);
             PreparedStatement preparedStatement = con.prepareStatement(query);

@@ -66,10 +66,12 @@ public class AddRuleController {
         stage.close();
     }
     public void pressFirstWordRadioButton() {
+        firstWordRadioButton.setSelected(true);
         secondWordRadioButton.setSelected(false);
     }
     public void pressSecondWordRadioButton() {
         firstWordRadioButton.setSelected(false);
+        secondWordRadioButton.setSelected(true);
     }
 
 
