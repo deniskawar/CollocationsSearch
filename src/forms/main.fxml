@@ -56,7 +56,6 @@
             <Menu mnemonicParsing="false" text="Режим эксперта">
                <items>
                   <MenuItem fx:id="addRuleMenuItem" mnemonicParsing="false" onAction="#pressAddRuleMenuItem" text="Добавить правило" />
-                  <MenuItem fx:id="removeRuleMenuItem" mnemonicParsing="false" onAction="#pressRemoveRuleMenuItem" text="Удалить правило" />
                   <MenuItem fx:id="showRulesMenuItem" mnemonicParsing="false" onAction="#pressShowRulesMenuItem" text="Показать правила" />
                </items>
             </Menu>

@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import neuralNetwork.NeuralNetwork;
 import words.Collocation;
 import words.Decoder;
+import words.Rule;
 import words.Word;
 
 import java.io.*;
@@ -72,8 +73,6 @@ public class MainController {
     @FXML
     private MenuItem addRuleMenuItem;
     @FXML
-    private MenuItem removeRuleMenuItem;
-    @FXML
     private MenuItem showRulesMenuItem;
     @FXML
     private MenuItem modeMenuItem;
@@ -105,6 +104,11 @@ public class MainController {
     private static int openProjectWindowHeight = 278;
     private static int createProjectWindowWidth = 261;
     private static int createProjectWindowHeight = 112;
+    private static int addRuleWindowWidth = 590;
+    private static int addRuleWindowHeight = 273;
+    private static int showRulesWindowWidth = 761;
+    private static int showRulesWindowHeight = 277;
+
     private List<Collocation> collocations;
 
     private File fileForAnalysis;
@@ -116,7 +120,6 @@ public class MainController {
         knowledgeBaseMenuItem.setDisable(true);
         neuralNetworkMenuItem.setDisable(true);
         addRuleMenuItem.setDisable(true);
-        removeRuleMenuItem.setDisable(true);
         showRulesMenuItem.setDisable(true);
         modeMenuItem.setDisable(true);
         neuralNetworkMenuItem.setSelected(true);
@@ -170,7 +173,6 @@ public class MainController {
                 findCollocationsMenuItem.setDisable(false);
                 addRuleMenuItem.setDisable(false);
                 showRulesMenuItem.setDisable(false);
-                removeRuleMenuItem.setDisable(false);
                 List<Word> words = Decoder.decodeInputFileToArray(fileForAnalysis);
                 for (Word word : words) word.defineHomonym();
                 List<Collocation> collocations = new ArrayList<>();
@@ -204,14 +206,29 @@ public class MainController {
 
         }
     }
-    public void pressAddRuleMenuItem() {
+    public void pressAddRuleMenuItem() throws IOException{
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../forms/add_rule.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root, addRuleWindowWidth, addRuleWindowHeight);
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initOwner(Main.primaryStage.getScene().getWindow());
+        stage.setTitle("Добавить правило");
+        stage.setScene(scene);
+        stage.show();
+
 
     }
-    public void pressRemoveRuleMenuItem() {
-
-    }
-    public void pressShowRulesMenuItem() {
-
+    public void pressShowRulesMenuItem() throws IOException{
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../forms/show_rules.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root, showRulesWindowWidth, showRulesWindowHeight);
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initOwner(Main.primaryStage.getScene().getWindow());
+        stage.setTitle("Показать правила");
+        stage.setScene(scene);
+        stage.show();
     }
     public void pressHelpMenuItem() {
 
@@ -274,10 +291,6 @@ public class MainController {
 
     public MenuItem getAddRuleMenuItem() {
         return addRuleMenuItem;
-    }
-
-    public MenuItem getRemoveRuleMenuItem() {
-        return removeRuleMenuItem;
     }
 
     public MenuItem getShowRulesMenuItem() {

@@ -7,18 +7,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="277.0" prefWidth="611.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="273.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.AddRuleController">
    <children>
       <Text fx:id="homonymPositionText" layoutX="16.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Омоним:" wrappingWidth="109.13671875" />
-      <RadioButton fx:id="leftHomonymRadioButton" layoutX="71.0" layoutY="14.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="102.0" text="Первое слово" />
-      <RadioButton fx:id="rightHomonymRadioButton" layoutX="173.0" layoutY="14.0" mnemonicParsing="false" text="Второе слово" />
-      <Button fx:id="addRuleButton" layoutX="271.0" layoutY="246.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="70.0" text="Добавить" />
-      <TableView fx:id="addRuleTable" layoutX="4.0" layoutY="39.0" prefHeight="200.0" prefWidth="602.0">
+      <RadioButton fx:id="firstWordRadioButton" layoutX="71.0" layoutY="14.0" mnemonicParsing="false" onAction="#pressFirstWordRadioButton" prefHeight="17.0" prefWidth="102.0" selected="true" text="Первое слово" />
+      <RadioButton fx:id="secondWordRadioButton" layoutX="173.0" layoutY="14.0" mnemonicParsing="false" onAction="#pressSecondWordRadioButton" text="Второе слово" />
+      <Button fx:id="addRuleButton" layoutX="270.0" layoutY="243.0" mnemonicParsing="false" onAction="#pressAddRuleButton" prefHeight="25.0" prefWidth="70.0" text="Добавить" />
+      <TableView fx:id="addRuleTableView" layoutX="4.0" layoutY="39.0" prefHeight="200.0" prefWidth="574.0">
         <columns>
-          <TableColumn prefWidth="150.0" text="Хар-ки 1 слова" />
-            <TableColumn prefWidth="150.0" text="Выбор" />
-          <TableColumn prefWidth="150.0" text="Хар-ки 2 слова" />
-            <TableColumn prefWidth="150.0" text="Альтернативные хар-ки" />
+            <TableColumn fx:id="characteristicName" prefWidth="166.0" text="Название характеристики" />
+          <TableColumn fx:id="firstWordChoice" prefWidth="125.0" text="Выбор для 1 слова" />
+          <TableColumn fx:id="secondWordChoice" prefWidth="127.0" text="Выбор для 2 слова" />
+            <TableColumn fx:id="alternativeChoice" prefWidth="154.0" text="Альтернативный выбор" />
         </columns>
       </TableView>
    </children>

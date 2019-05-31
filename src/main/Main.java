@@ -8,13 +8,95 @@ import javafx.stage.Stage;
 import neuralNetwork.NeuralNetwork;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Main extends Application {
     private static NeuralNetwork neuralNetwork = new NeuralNetwork(3);
+
+    private static final Map<String, Map<Integer, String>> characteristicsInfoForRules = new LinkedHashMap<String, Map<Integer, String>>() {
+        {
+            put("Часть речи", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Существительное");
+                    put(1, "Прилагательное");
+                    put(2, "Глагол");
+                    put(3, "Причастие");
+                    put(4, "Местоимение");
+                    put(5, "Союз");
+                    put(6, "Предлог");
+                    put(7, "Деепричастие");
+                    put(8, "Наречие");
+                }
+            });
+            put("Падеж", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Именительный");
+                    put(2, "Родительный");
+                    put(3, "Дательный");
+                    put(4, "Винительный");
+                    put(5, "Творительный");
+                    put(6, "Предложный");
+                }
+            });
+            put("Число", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Единственное");
+                    put(2, "Множественное");
+                }
+            });
+            put("Род", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Мужской");
+                    put(2, "Женский");
+                    put(3, "Средний");
+                }
+            });
+            put("Время", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Настоящее");
+                    put(2, "Прошедшее");
+                    put(3, "Будущее");
+                }
+            });
+            put("Залог", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Страдательный");
+                    put(2, "Действительный");
+                }
+            });
+            put("Тип местоимения", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Личное");
+                    put(2, "Возвратное");
+                    put(3, "Притяжательное");
+                    put(4, "Вопросительное");
+                    put(5, "Относительное");
+                    put(6, "Указательное");
+                    put(7, "Определительное");
+                    put(8, "Отрицательное");
+                    put(9, "Неопределенное");
+                }
+            });
+            put("Наклонение", new LinkedHashMap<Integer, String>() {
+                {
+                    put(0, "Отсутствует / Любая");
+                    put(1, "Изъявительное");
+                    put(2, "Сослагательное");
+                    put(3, "Повелительное");
+                }
+            });
+        }
+    };
     private static final Map<String,Integer> characteristicsInfo = new LinkedHashMap<String, Integer>(){
         {
-            put("Часть речи", 8);
+            put("Часть речи", 9);
             put("Падеж", 7);
             put("Число", 3);
             put("Род", 4);
@@ -91,5 +173,9 @@ public class Main extends Application {
 
     public static void setNeuralNetwork(NeuralNetwork neuralNetwork) {
         Main.neuralNetwork = neuralNetwork;
+    }
+
+    public static Map<String, Map<Integer, String>> getCharacteristicsInfoForRules() {
+        return characteristicsInfoForRules;
     }
 }

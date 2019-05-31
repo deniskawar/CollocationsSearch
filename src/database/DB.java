@@ -1,9 +1,14 @@
 package database;
 
+import javafx.scene.control.TableView;
+import main.AddRuleTableRow;
+import main.Main;
 import neuralNetwork.Layer;
 import neuralNetwork.NeuralNetwork;
 import neuralNetwork.Neuron;
 import neuralNetwork.Synapse;
+import words.Characteristic;
+import words.Rule;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -619,5 +624,231 @@ public class DB {
         }
 
     }
+    public static void addRuleToDB(TableView table, int projectId, boolean isHomonymLeft) {
+
+        //boolean firstIteration = true;
+        Connection con = null;
+        String url = "jdbc:mysql://localhost:3306/collocations_search" +
+                "?verifyServerCertificate=false" +
+                "&useSSL=false" +
+                "&requireSSL=false" +
+                "&useLegacyDatetimeCode=false" +
+                "&amp" +
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+
+        int neuralNetworkMaxId = 0;
+        int layerMaxId = 0;
+        int neuronMaxId = 0;
+        int synapseMaxId = 0;
+        int synapseNeuronQueryMaxId = 0;
+
+        String ruleCollocationMaxIdQuery = "select max(rule_collocation_id) from rule_collocation";
+        String homonymMaxIdQuery = "select max(homonym_id) from homonym";
+        String decisionWordMaxIdQuery = "select max(decision_word_id) from decision_word";
+        String characteristicMaxIdQuery = "select max(characteristic_id) from characteristic";
+
+        String ruleCollocationQuery = "insert into rule_collocation(project_id, is_rule) values (?, ?);";
+        String homonymQuery = "insert into homonym(rule_collocation_id, word, homonym_position) values ((select max(rule_collocation_id) from rule_collocation), null, ?);";
+        String decisionWordQuery = "insert into decision_word(rule_collocation_id, word, decision_word_position) values ((select max(rule_collocation_id) from rule_collocation), null, ?);";
+        String homonymCharacteristicQuery =
+                "insert into characteristic(homonym_id, decision_word_id, default_value, alternative_value, maximum_value, name) values ((select max(homonym_id) from homonym), null, ?, ?, ?, ?);";
+        String decisionWordCharacteristicQuery =
+                "insert into characteristic(homonym_id, decision_word_id, default_value, alternative_value, maximum_value, name) values (null, (select max(decision_word_id) from decision_word), ?, null, ?, ?);";
+
+        PreparedStatement preparedStatement = null;
+
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            preparedStatement = con.prepareStatement(ruleCollocationQuery);
+            preparedStatement.setInt(1, projectId);
+            preparedStatement.setInt(2, 1);
+            preparedStatement.execute();
+
+            preparedStatement = con.prepareStatement(homonymQuery);
+            preparedStatement.setInt(1, isHomonymLeft ? 1 : 2);
+            preparedStatement.execute();
+
+            preparedStatement = con.prepareStatement(decisionWordQuery);
+            preparedStatement.setInt(1, isHomonymLeft ? 2 : 1);
+            preparedStatement.execute();
+
+            int index = 0;
+            for (Map.Entry<String, Map<Integer,String>> entry : Main.getCharacteristicsInfoForRules().entrySet()) {
+                String characteristicName = entry.getKey();
+                String firstWordCharacteristicName = (String) ((AddRuleTableRow) table.getItems().get(index)).getFirstWordChoice().getSelectionModel().getSelectedItem();
+                String secondWordCharacteristicName = (String) ((AddRuleTableRow) table.getItems().get(index)).getSecondWordChoice().getSelectionModel().getSelectedItem();
+                String alternativeCharacteristicName = (String) ((AddRuleTableRow) table.getItems().get(index)).getAlternativeChoice().getSelectionModel().getSelectedItem();
+
+                int firstWordCharacteristicValue = 0;
+                int secondWordCharacteristicValue = 0;
+                int alternativeCharacteristicValue = 0;
+
+                for (Map.Entry<Integer, String> entry1 : entry.getValue().entrySet()) {
+                    if (entry1.getValue().equals(firstWordCharacteristicName)) firstWordCharacteristicValue = entry1.getKey();
+                    if (entry1.getValue().equals(secondWordCharacteristicName)) secondWordCharacteristicValue = entry1.getKey();
+                    if (entry1.getValue().equals(alternativeCharacteristicName)) alternativeCharacteristicValue = entry1.getKey();
+                }
+
+                preparedStatement = con.prepareStatement(homonymCharacteristicQuery);
+                preparedStatement.setInt(1, (isHomonymLeft) ? firstWordCharacteristicValue : secondWordCharacteristicValue);
+                preparedStatement.setInt(2, alternativeCharacteristicValue);
+                preparedStatement.setInt(3, entry.getValue().size());
+                preparedStatement.setString(4, characteristicName);
+                preparedStatement.execute();
+
+                preparedStatement = con.prepareStatement(decisionWordCharacteristicQuery);
+                preparedStatement.setInt(1, !(isHomonymLeft) ? firstWordCharacteristicValue : secondWordCharacteristicValue);
+                preparedStatement.setInt(2, entry.getValue().size());
+                preparedStatement.setString(3, characteristicName);
+                preparedStatement.execute();
+
+                index++;
+            }
+        }
+        catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+        }
+    }
+    public static List<Rule> getRulesFromDB(int projectId) {
+        Connection con = null;
+        String url = "jdbc:mysql://localhost:3306/collocations_search" +
+                "?verifyServerCertificate=false" +
+                "&useSSL=false" +
+                "&requireSSL=false" +
+                "&useLegacyDatetimeCode=false" +
+                "&amp" +
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+
+        String ruleCollocationQuery = "select * from rule_collocation where project_id = ? and is_rule = 1;";
+        String homonymQuery = "select * from homonym where rule_collocation_id = ?";
+        String decisionWordQuery = "select * from decision_word where rule_collocation_id = ?;";
+        String homonymCharacteristicQuery = "select * from characteristic where homonym_id = ?;";
+        String decisionWordCharacteristicQuery = "select * from characteristic where decision_word_id = ?;";
+
+        PreparedStatement preparedStatement = null;
+
+        List<Rule> rules = new ArrayList<>();
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+
+            preparedStatement = con.prepareStatement(ruleCollocationQuery);
+            preparedStatement.setInt(1, projectId);
+            ResultSet ruleCollocationResultSet = preparedStatement.executeQuery();
+
+            while (ruleCollocationResultSet.next()) {
+                int ruleId = ruleCollocationResultSet.getInt("rule_collocation_id");
+
+                preparedStatement = con.prepareStatement(homonymQuery);
+                preparedStatement.setInt(1, ruleId);
+                ResultSet homonymResultSet = preparedStatement.executeQuery();
+                homonymResultSet.next();
+                int homonymId = homonymResultSet.getInt("homonym_id");
+                int homonymPosition = homonymResultSet.getInt("homonym_position");
+
+                preparedStatement = con.prepareStatement(decisionWordQuery);
+                preparedStatement.setInt(1, ruleId);
+                ResultSet decisionWordResultSet = preparedStatement.executeQuery();
+                decisionWordResultSet.next();
+                int decisionWordId = decisionWordResultSet.getInt("decision_word_id");
+                int decisionWordPosition = decisionWordResultSet.getInt("decision_word_position");
+
+                preparedStatement = con.prepareStatement(homonymCharacteristicQuery);
+                preparedStatement.setInt(1, homonymId);
+                ResultSet homonymCharacteristicResultSet = preparedStatement.executeQuery();
+
+                List<Characteristic> homonymCharacteristics = new ArrayList<>();
+                List<Characteristic> alternativeCharacteristics = new ArrayList<>();
+                while (homonymCharacteristicResultSet.next()) {
+                    int defaultValue = homonymCharacteristicResultSet.getInt("default_value");
+                    int maximumValue = homonymCharacteristicResultSet.getInt("maximum_value");
+                    int alternativeValue = homonymCharacteristicResultSet.getInt("alternative_value");
+                    String name = homonymCharacteristicResultSet.getString("name");
+                    Characteristic homonymCharacteristic = new Characteristic(name, maximumValue);
+                    Characteristic alternativeCharacteristic = new Characteristic(name, maximumValue);
+                    homonymCharacteristic.setValue(defaultValue);
+                    alternativeCharacteristic.setValue(alternativeValue);
+                    homonymCharacteristics.add(homonymCharacteristic);
+                    alternativeCharacteristics.add(alternativeCharacteristic);
+                }
+
+                preparedStatement = con.prepareStatement(decisionWordCharacteristicQuery);
+                preparedStatement.setInt(1, decisionWordId);
+                ResultSet decisionWordCharacteristicResultSet = preparedStatement.executeQuery();
+
+                List<Characteristic> decisionWordCharacteristics = new ArrayList<>();
+                while (decisionWordCharacteristicResultSet.next()) {
+                    int defaultValue = decisionWordCharacteristicResultSet.getInt("default_value");
+                    int maximumValue = decisionWordCharacteristicResultSet.getInt("maximum_value");
+                    String name = decisionWordCharacteristicResultSet.getString("name");
+                    Characteristic characteristic = new Characteristic(name, maximumValue);
+                    characteristic.setValue(defaultValue);
+                    decisionWordCharacteristics.add(characteristic);
+                }
+                Rule rule = new Rule(ruleId, homonymPosition == 1 ? homonymCharacteristics : decisionWordCharacteristics,
+                        !(homonymPosition == 1) ? homonymCharacteristics : decisionWordCharacteristics,
+                        alternativeCharacteristics, homonymPosition == 1);
+                rules.add(rule);
+            }
+        }
+        catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+        }
+        return rules;
+    }
+    public static void deleteRuleFromBD(int ruleId) {
+        Connection con = null;
+        PreparedStatement preparedStatement = null;
+        String url = "jdbc:mysql://localhost:3306/collocations_search"+
+                "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC" +
+                "&allowPublicKeyRetrieval=true" +
+                "&useSSL=false";
+        String user = "root";
+        String password = "admin";
+        String query = "delete from rule_collocation where rule_collocation_id = ?;";
+
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1, ruleId);
+            preparedStatement.execute();
+
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
+        finally {
+            try {con.close();}
+            catch (SQLException se) {
+
+            }
+        }
+    }
+
 
 }
