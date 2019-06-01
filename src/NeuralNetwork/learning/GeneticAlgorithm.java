@@ -219,9 +219,9 @@ public class GeneticAlgorithm {
                 population.get(i).getNeuralNetwork().performCalculation(collocations.get(j));
                 double really = collocations.get(j).isCollocationReally() ? 1 : 0;
                 double neuralNetworkResult = population.get(i).getNeuralNetwork().getOutput();
-                error = error + Math.abs(really-neuralNetworkResult);
+                error = error + Math.pow(really-neuralNetworkResult, 2);
             }
-            population.get(i).getNeuralNetwork().setError(error);
+            population.get(i).getNeuralNetwork().setError(error/collocations.size());
         }
 
 

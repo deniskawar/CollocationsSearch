@@ -8,6 +8,8 @@ public class Collocation {
     private Word secondWord;
     private boolean collocationByNeuralNetworkCalculation = false;
     private boolean collocationReally = false;
+    private boolean collocationByKnowledgeBase = false;
+    private int ruleId;
 
     public Collocation(Word firstWord, Word secondWord) {
         this.firstWord = firstWord;
@@ -41,4 +43,19 @@ public class Collocation {
         this.collocationReally = collocationReally;
     }
 
+    public boolean isCollocationByKnowledgeBase() {
+        return collocationByKnowledgeBase;
+    }
+
+    public void setCollocationByKnowledgeBase(boolean collocationByKnowledgeBase) {
+        this.collocationByKnowledgeBase = collocationByKnowledgeBase;
+    }
+
+    public int getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(int ruleId) {
+        this.ruleId = ruleId;
+    }
 }
